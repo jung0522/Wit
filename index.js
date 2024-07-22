@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/api-docs', SwaggerUi.serve, SwaggerUi.setup(specs));
+// app.use('/api-docs', SwaggerUi.serve, SwaggerUi.setup(specs));
 
 app.listen(app.get('port'), () => {
   console.log(`Example app listening on port ${app.get('port')}`);
