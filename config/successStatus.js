@@ -9,21 +9,70 @@ export const successStatus = {
     message: 'success!',
   },
   TOKEN_VERIFICATION_SUCCESS: {
+    status: StatusCodes.OK,
     isSuccess: true,
     code: 'TOKEN200',
     message: 'JWT 토큰 검증 성공',
   },
-  JOIN_SUCCESS: {
+  SIGNUP_SUCCESS: {
+    status: StatusCodes.OK,
     isSuccess: true,
     code: 'MEMBER200',
     message: '회원가입 성공입니다.',
   },
-  LOGIN_SUCCESS: {
+  // 로그인
+  KAKAO_LOGIN_PAGE_SUCCESS: {
+    status: StatusCodes.OK,
     isSuccess: true,
-    code: 'MEMBER2001',
-    message: '로그인 성공',
+    code: 'LOGIN200',
+    message: '카카오 로그인 페이지 불러오기에 성공했습니다!',
   },
-  // 게시글 성공
+  NAVER_LOGIN_PAGE_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'LOGIN200',
+    message: '네이버 로그인 페이지 불러오기에 성공했습니다!',
+  },
+  KAKAO_LOGIN_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'LOGIN200',
+    message: '카카오 로그인 성공했습니다!',
+  },
+  NAVER_LOGIN_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'LOGIN200',
+    message: '네이버 로그인 성공했습니다!',
+  },
+  LOGIN_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'LOGIN200',
+    message: '로그인 성공했습니다!',
+  },
+  LOGOUT_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'LOGOUT200',
+    message: '로그아웃에 성공했습니다!',
+  },
+
+  WITHDRAW_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'WITHDRAW200',
+    message: '회원탈퇴에 성공했습니다!',
+  },
+
+  // 랜딩 페이지
+  LANDING_SUCCESS: {
+    isSuccess: true,
+    code: 'LANDING200',
+    message: '랜딩 페이지 정보 조회에 성공했습니다!',
+  },
+
+  // 게시글
   GET_ALL_POSTS_SUCCESS: {
     status: StatusCodes.OK,
     isSuccess: true,
