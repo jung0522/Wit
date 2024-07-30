@@ -39,13 +39,13 @@ export const errStatus = {
     message: '잘못된 확장자입니다.',
   },
   // 회원가입 에러
-  AUTHENTICATION_FAILED: {
+  SIGNUP_AUTHENTICATION_FAILED: {
     status: StatusCodes.UNAUTHORIZED,
     isSuccess: false,
-    code: 'MEMBER001',
+    code: 'MEMBER401',
     message: '인증되지 않았습니다. ID/PW를 확인해주세요.',
   },
-  ALREADY_REGISTERED: {
+  SIGNUP_ALREADY_REGISTERED: {
     status: StatusCodes.UNAUTHORIZED,
     isSuccess: false,
     code: 'MEMBER002',
