@@ -61,6 +61,7 @@ export const errStatus = {
   },
   //토큰 오류
   TOKEN_VERIFICATION_FAILURE: {
+    status: StatusCodes.UNAUTHORIZED,
     isSuccess: false,
     code: 'TOKEN401',
     message: 'JWT 토큰 검증 실패',
