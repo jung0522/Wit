@@ -51,6 +51,12 @@ export const errStatus = {
     code: 'MEMBER002',
     message: '이미 가입하였습니다.',
   },
+  USERID_IS_WRONG: {
+    status: StatusCodes.BAD_REQUEST,
+    isSuccess: false,
+    code: 'COMMON005',
+    message: '유저 id가 잘못됐습니다.',
+  },
 
   // 로그인 에러
   INVALID_CREDENTIALS: {

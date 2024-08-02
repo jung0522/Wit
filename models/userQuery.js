@@ -1,11 +1,19 @@
-const createUser =
-  'INSERT INTO User (usernickname, gender, age) VALUES (?, ?, ?)';
+const createUserQuery =
+  'INSERT INTO User (username, usernickname, gender, age, birth) VALUES (?, ?, ?, ?, ?)';
 
-const findAllUser = 'SELECT * FROM User';
+const findAllUserQuery = 'SELECT * FROM User';
 
-const findOneUser = 'SELECT * FROM User WHERE id = ?';
+const findOneUserQuery = 'SELECT * FROM User WHERE id = ?';
 
-const updateUser =
-  'UPDATE User SET usernickname = ?, username = ? birth = ? gender = ? WHERE id = ?';
+const updateUserQuery =
+  'UPDATE User SET username = ?, usernickname = ?, gender = ?, age = ?, birth = ? WHERE id = ?';
 
-const deleteUser = 'DELETE FROM User WHERE id = ?';
+const deleteUserQuery = 'DELETE FROM User WHERE id = ?';
+
+export {
+  createUserQuery,
+  findAllUserQuery,
+  findOneUserQuery,
+  updateUserQuery,
+  deleteUserQuery,
+};
