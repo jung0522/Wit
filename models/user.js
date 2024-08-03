@@ -1,6 +1,5 @@
 import { pool } from '../config/db-config.js';
 import { errStatus } from '../config/errorStatus.js';
-import { BaseError } from '../config/error.js';
 
 import {
   createUserQuery,
@@ -11,57 +10,67 @@ import {
 } from './userQuery.js';
 
 const createUser = async (userData) => {
+  const connection = await pool.getConnection();
   try {
-    const connection = await pool.getConnection();
     let row;
-    [row] = await pool.query(createUserQuery, [
-      userData.id,
-      userData.name,
-      userData.nickname,
-      userData.gender,
-      userData.age,
-      userData.birthday,
+    const { id, name, nickname, gender, age, birthday } = userData;
+    userData[row] = await pool.query(createUserQuery, [
+      id,
+      name,
+      nickname,
+      gender,
+      age,
+      birthday,
     ]);
     connection.release();
     return row;
   } catch (err) {
-    throw new BaseError(errStatus.BAD_REQUEST);
+    console.log(err);
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 const getAllUser = async () => {
+  const connection = await pool.getConnection();
   try {
-    const connection = await pool.getConnection();
     let row;
     [row] = await pool.query(findAllUserQuery);
     connection.release();
     return row;
   } catch (err) {
-    throw new BaseError(errStatus.INTERNAL_SERVER_ERROR);
+    console.log(err);
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 const getOneUser = async (id) => {
+  let connection;
   try {
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
     let row;
-    if (id !== undefined && !NaN(Number(id))) {
+    if (id !== undefined) {
       [row] = await pool.query(findOneUserQuery, [id]);
     } else {
       throw new Error(errStatus.USERID_IS_WRONG);
     }
-    connection.release();
+    if (row.length === 0) {
+      throw new Error(errStatus.INVALID_CREDENTIALS);
+    }
     return row;
   } catch (err) {
-    throw new BaseError(errStatus.INTERNAL_SERVER_ERROR);
+    console.log(err.message);
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 const updateUser = async (id) => {
+  const connection = await pool.getConnection();
   try {
-    const connection = await pool.getConnection();
     let row;
-    if (id !== undefined && !NaN(Number(id))) {
+    if (id !== undefined) {
       [row] = await pool.query(updateUserQuery, [id]);
     } else {
       throw new Error(errStatus.USERID_IS_WRONG);
@@ -69,15 +78,17 @@ const updateUser = async (id) => {
     connection.release();
     return row;
   } catch (err) {
-    throw new Error(errStatus.INTERNAL_SERVER_ERROR);
+    console.log(err);
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 const deleteUser = async (id) => {
+  const connection = await pool.getConnection();
   try {
-    const connection = await pool.getConnection();
     let row;
-    if (id !== undefined && !NaN(Number(id))) {
+    if (id !== undefined) {
       [row] = await pool.query(deleteUserQuery, [id]);
     } else {
       throw new Error(errStatus.USERID_IS_WRONG);
@@ -85,7 +96,9 @@ const deleteUser = async (id) => {
     connection.release();
     return row;
   } catch (err) {
-    throw new Error(errStatus.INTERNAL_SERVER_ERROR);
+    console.log(err);
+  } finally {
+    if (connection) connection.release();
   }
 };
 
