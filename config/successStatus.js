@@ -97,6 +97,18 @@ export const successStatus = {
     code: 'USER200',
     message: '유저 정보 수정에 성공했습니다!',
   },
+  UPLOAD_PROFILE_IMAGE_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'USER200',
+    message: '유저 프로필 이미지 업로드에 성공했습니다!',
+  },
+  GET_PROFILE_IMAGE_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'USER200',
+    message: '유저 프로필 이미지 조회에 성공했습니다!',
+  },
 
   // 랜딩 페이지
   LANDING_SUCCESS: {

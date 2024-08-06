@@ -64,6 +64,19 @@ export const errStatus = {
     message: '유저 데이터가 잘못됐습니다.',
   },
 
+  UPLOAD_PROFILE_IMAGE_FAIL: {
+    status: StatusCodes.BAD_REQUEST,
+    isSuccess: false,
+    code: 'USER 400',
+    message: '유저 프로필 이미지 업로드에 실패했습니다.',
+  },
+  GET_PROFILE_IMAGE_FAIL: {
+    status: StatusCodes.BAD_REQUEST,
+    isSuccess: false,
+    code: 'USER 400',
+    message: '유저 프로필 이미지 조회에 실패했습니다.',
+  },
+
   // 로그인 에러
   INVALID_CREDENTIALS: {
     status: StatusCodes.UNAUTHORIZED,

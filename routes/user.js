@@ -8,6 +8,8 @@ import {
   getOneUserController,
   updateUserController,
   deleteUserController,
+  updateProfileImage,
+  getProfileImage,
 } from '../controller/userController.js';
 
 export const userRouter = express.Router();
@@ -35,9 +37,21 @@ userRouter.get(
     res.send(response(successStatus.LOGIN_NAVER_SUCCESS, data));
   }
 );
+
 // 회원탈퇴
-userRouter.delete('withdraw/:user_id', deleteUserController);
+userRouter.delete('/withdraw/:user_id', deleteUserController);
+
+// 회원 정보 모두 조회
+userRouter.get('/', getAllUserController);
+
 // 회원 정보 조회
 userRouter.get('/:user_id', getOneUserController);
+
 // 회원 정보 수정 (이미지 제외)
-userRouter.get('/:user_id', updateUserController);
+userRouter.post('/:user_id', updateUserController);
+
+// 회원 프로필 이미지 조회
+userRouter.get('/profile_image/:user_id', getProfileImage);
+
+// 회원 프로필 이미지 수정, 업로드
+userRouter.post('/profile_image/:user_id', updateProfileImage);
