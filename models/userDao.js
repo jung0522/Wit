@@ -63,7 +63,6 @@ const getOneUser = async (id) => {
     }
 
     const [row] = await pool.query(findOneUserQuery, [id]);
-    console.log(row);
     if (row.length === 0) {
       return null;
     }

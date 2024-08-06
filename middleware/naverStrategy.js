@@ -23,7 +23,6 @@ const naverStrategy = () => {
           if (exUser) {
             // 사용자 존재 시
             return done(null, exUser, {
-              status: successStatus.LOGIN_NAVER_SUCCESS,
               accessToken,
               refreshToken,
             });
@@ -33,7 +32,6 @@ const naverStrategy = () => {
             const newUser = await createUser(userData);
             console.log('새로운 유저:', newUser);
             return done(null, newUser, {
-              status: successStatus.NEW_USER_NAVER_LOGIN_SUCCESS,
               accessToken,
               refreshToken,
             });

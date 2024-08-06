@@ -2,6 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import { response } from '../config/response.js';
 import { successStatus } from '../config/successStatus.js';
+
 import {
   getAllUserController,
   getOneUserController,
@@ -25,6 +26,7 @@ userRouter.get(
   passport.authenticate('naver', { failureRedirect: '/naver_signin' }),
   (req, res) => {
     const { accessToken, refreshToken } = req.authInfo;
+    req.session.accessToken = accessToken;
     const data = { accessToken, refreshToken };
     res.send(response(successStatus.LOGIN_NAVER_SUCCESS, data));
   }
