@@ -1,8 +1,8 @@
 import passport from 'passport';
 import naverStrategy from '../middleware/naverStrategy.js';
-import { getOneUser } from '../models/user.js';
+import { getOneUser } from '../models/userDao.js';
 
-const passportSetup = () => {
+const passportConfig = () => {
   passport.serializeUser((user, done) => {
     const [userData] = user;
     done(null, userData.user_id);
@@ -17,4 +17,4 @@ const passportSetup = () => {
   naverStrategy(); // 네이버 전략 등록
 };
 
-export { passportSetup };
+export { passportConfig };

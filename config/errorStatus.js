@@ -51,11 +51,17 @@ export const errStatus = {
     code: 'MEMBER002',
     message: '이미 가입하였습니다.',
   },
-  USERID_IS_WRONG: {
+  USER_ID_IS_WRONG: {
     status: StatusCodes.BAD_REQUEST,
     isSuccess: false,
     code: 'COMMON005',
     message: '유저 id가 잘못됐습니다.',
+  },
+  INVALID_USER_DATA: {
+    status: StatusCodes.BAD_REQUEST,
+    isSuccess: false,
+    code: 'USER 400',
+    message: '유저 데이터가 잘못됐습니다.',
   },
 
   // 로그인 에러
@@ -63,7 +69,7 @@ export const errStatus = {
     status: StatusCodes.UNAUTHORIZED,
     isSuccess: false,
     code: 'MEMBER002',
-    message: '입력하신 정보가 없습니다. 회원가입을 먼저 진행해주세요.',
+    message: '입력하신 정보에 해당하는 계정이 없습니다. 계정을 생성하겠습니다.',
   },
   //토큰 오류
   TOKEN_VERIFICATION_FAILURE: {

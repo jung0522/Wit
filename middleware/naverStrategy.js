@@ -1,7 +1,9 @@
 import passport from 'passport';
 import { Strategy as NaverStrategy } from 'passport-naver-v2';
 
-import { getOneUser, createUser } from '../models/user.js';
+import { getOneUser, createUser } from '../models/userDao.js';
+import { successStatus } from '../config/successStatus.js';
+import { errStatus } from '../config/errorStatus.js';
 
 const naverStrategy = () => {
   passport.use(
@@ -18,17 +20,28 @@ const naverStrategy = () => {
           const { id } = userData;
           // 기존 사용자 조회
           const exUser = await getOneUser(id);
-          if (exUser) {
+          if (exUser.length !== 0) {
             // 사용자 존재 시
-            done(null, exUser);
+            return done(null, exUser, {
+              status: successStatus.LOGIN_NAVER_SUCCESS,
+              accessToken,
+              refreshToken,
+            });
           } else {
             // 사용자 없으면 새로 생성
             const newUser = await createUser(userData);
-            done(null, newUser);
+            console.log('새로운 유저:', newUser);
+            return done(null, newUser, {
+              status: successStatus.NEW_USER_NAVER_LOGIN_SUCCESS,
+              accessToken,
+              refreshToken,
+            });
           }
         } catch (error) {
           console.log(error);
-          done(error);
+          return done(error, false, {
+            status: errStatus.INTERNAL_SERVER_ERROR,
+          });
         }
       }
     )

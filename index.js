@@ -5,8 +5,8 @@ import passport from 'passport';
 import session from 'express-session';
 import SwaggerUi from 'swagger-ui-express';
 
-import { authRouter } from './routes/auth.js';
-import { passportSetup } from './config/passportConfig.js';
+import { userRouter } from './routes/user.js';
+import { passportConfig } from './config/passportConfig.js';
 
 dotenv.config();
 
@@ -27,10 +27,10 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Passport 전략 설정
-passportSetup();
+// Passport 설정
+passportConfig();
 
-app.use('/api/users', authRouter);
+app.use('/api/users', userRouter);
 
 // app.use('/api-docs', SwaggerUi.serve, SwaggerUi.setup(specs));
 
