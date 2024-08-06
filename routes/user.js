@@ -2,7 +2,6 @@ import express from 'express';
 import passport from 'passport';
 import { response } from '../config/response.js';
 import { successStatus } from '../config/successStatus.js';
-
 import {
   getAllUserController,
   getOneUserController,
@@ -14,44 +13,34 @@ import {
 
 export const userRouter = express.Router();
 
-// 네이버로 로그인하는 라우터
+// 네이버 로그인 라우터
 userRouter.get(
   '/naver_signin',
-  passport.authenticate('naver', {
-    authType: 'reprompt',
-  })
+  passport.authenticate('naver', { authType: 'reprompt' })
 );
 
-// 네이버 서버 로그인이 되면, 네이버 redirect URL 설정에 따라 이쪽 라우터로 오게 된다.
+// 네이버 로그인 콜백 라우터
 userRouter.get(
   '/naver_signin/callback',
   passport.authenticate('naver', { failureRedirect: '/naver_signin' }),
   (req, res) => {
-    // req.authInfo를 통해 상태 코드, 메시지, 액세스 토큰, 리프레시 토큰에 접근
     const { accessToken, refreshToken } = req.authInfo;
-    const data = {
-      accessToken,
-      refreshToken,
-    };
-    // 클라이언트에 응답을 보냄
+    const data = { accessToken, refreshToken };
     res.send(response(successStatus.LOGIN_NAVER_SUCCESS, data));
   }
 );
 
-// 회원탈퇴
-userRouter.delete('/withdraw/:user_id', deleteUserController);
+// 회원 관련 라우터
+userRouter.route('/').get(getAllUserController); // 회원 정보 모두 조회
 
-// 회원 정보 모두 조회
-userRouter.get('/', getAllUserController);
+userRouter
+  .route('/:user_id')
+  .get(getOneUserController) // 회원 정보 조회
+  .post(updateUserController) // 회원 정보 수정 (이미지 제외)
+  .delete(deleteUserController); // 회원 탈퇴
 
-// 회원 정보 조회
-userRouter.get('/:user_id', getOneUserController);
-
-// 회원 정보 수정 (이미지 제외)
-userRouter.post('/:user_id', updateUserController);
-
-// 회원 프로필 이미지 조회
-userRouter.get('/profile_image/:user_id', getProfileImage);
-
-// 회원 프로필 이미지 수정, 업로드
-userRouter.post('/profile_image/:user_id', updateProfileImage);
+// 회원 프로필 이미지 관련 라우터
+userRouter
+  .route('/profile_image/:user_id')
+  .get(getProfileImage) // 회원 프로필 이미지 조회
+  .post(updateProfileImage); // 회원 프로필 이미지 수정, 업로드
