@@ -20,7 +20,7 @@ const naverStrategy = () => {
           const { id } = userData;
           // 기존 사용자 조회
           const exUser = await getOneUser(id);
-          if (exUser.length !== 0) {
+          if (exUser) {
             // 사용자 존재 시
             return done(null, exUser, {
               status: successStatus.LOGIN_NAVER_SUCCESS,
@@ -29,6 +29,7 @@ const naverStrategy = () => {
             });
           } else {
             // 사용자 없으면 새로 생성
+
             const newUser = await createUser(userData);
             console.log('새로운 유저:', newUser);
             return done(null, newUser, {

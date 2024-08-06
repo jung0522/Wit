@@ -78,12 +78,20 @@ export const errStatus = {
   },
 
   // 로그인 에러
+  INVALID_CREDENTIALS_MAKE_ACCOUNT: {
+    status: StatusCodes.UNAUTHORIZED,
+    isSuccess: false,
+    code: 'MEMBER002',
+    message: '입력하신 정보에 해당하는 계정이 없습니다. 계정을 생성하겠습니다.',
+  },
+
   INVALID_CREDENTIALS: {
     status: StatusCodes.UNAUTHORIZED,
     isSuccess: false,
     code: 'MEMBER002',
     message: '입력하신 정보에 해당하는 계정이 없습니다. 계정을 생성하겠습니다.',
   },
+
   //토큰 오류
   TOKEN_VERIFICATION_FAILURE: {
     isSuccess: false,

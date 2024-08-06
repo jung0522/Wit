@@ -58,21 +58,26 @@ const getOneUser = async (id) => {
   let connection;
   try {
     connection = await pool.getConnection();
-    let row;
-    if (id !== undefined) {
-      [row] = await pool.query(findOneUserQuery, [id]);
-    } else {
+    if (id === undefined) {
       throw new Error(errStatus.USER_ID_IS_WRONG.message);
     }
+
+    const [row] = await pool.query(findOneUserQuery, [id]);
+    console.log(row);
+    if (row.length === 0) {
+      return null;
+    }
+
     return row;
-  } catch (err) {
-    throw new Error(errStatus.INVALID_CREDENTIALS.message);
+  } catch (error) {
+    console.log(error);
+    throw error;
   } finally {
     if (connection) connection.release();
   }
 };
 
-const updateUser = async (userData, id) => {
+const updateUser = async (userData, user_id) => {
   const connection = await pool.getConnection();
   const { username, usernickname, gender, age, birth } = userData;
   try {
@@ -80,13 +85,14 @@ const updateUser = async (userData, id) => {
     if (!username || !usernickname || !gender || !age || !birth) {
       throw new Error(errStatus.INVALID_USER_DATA.message);
     }
-    if (id !== undefined) {
+    if (user_id !== undefined) {
       [row] = await pool.query(updateUserQuery, [
         username,
         usernickname,
         gender,
         age,
         birth,
+        user_id,
       ]);
     } else {
       throw new Error(errStatus.USER_ID_IS_WRONG.message);
