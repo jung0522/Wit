@@ -12,7 +12,6 @@ import { imageUploader } from '../middleware/imageUploader.js';
 const getAllUserController = async (req, res) => {
   try {
     const data = await getAllUser();
-    console.log('확인된 토큰', req.verifiedToken);
     res.send(response(successStatus.GET_ALL_USERS_SUCCESS, data));
   } catch (err) {
     res.send(errResponse(errStatus.INTERNAL_SERVER_ERROR));
