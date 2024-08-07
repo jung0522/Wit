@@ -12,6 +12,8 @@ import {
   getProfileImage,
 } from '../controller/userController.js';
 
+import { authenticateJWT } from '../middleware/jwtMiddleware.js';
+
 export const userRouter = express.Router();
 
 // 네이버 로그인 라우터
@@ -33,13 +35,14 @@ userRouter.get(
 );
 
 // 회원 관련 라우터
-userRouter.route('/').get(getAllUserController); // 회원 정보 모두 조회
+userRouter.route('/').get(authenticateJWT, getAllUserController); // 회원 정보 모두 조회
+
+userRouter.delete('/withdraw/:user_id', deleteUserController);
 
 userRouter
   .route('/:user_id')
   .get(getOneUserController) // 회원 정보 조회
-  .post(updateUserController) // 회원 정보 수정 (이미지 제외)
-  .delete(deleteUserController); // 회원 탈퇴
+  .post(updateUserController); // 회원 정보 수정 (이미지 제외)
 
 // 회원 프로필 이미지 관련 라우터
 userRouter

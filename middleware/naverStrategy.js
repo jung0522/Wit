@@ -2,7 +2,6 @@ import passport from 'passport';
 import { Strategy as NaverStrategy } from 'passport-naver-v2';
 
 import { getOneUser, createUser } from '../models/userDao.js';
-import { successStatus } from '../config/successStatus.js';
 import { errStatus } from '../config/errorStatus.js';
 
 const naverStrategy = () => {
@@ -28,7 +27,6 @@ const naverStrategy = () => {
             });
           } else {
             // 사용자 없으면 새로 생성
-
             const newUser = await createUser(userData);
             console.log('새로운 유저:', newUser);
             return done(null, newUser, {

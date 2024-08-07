@@ -41,23 +41,11 @@ export const successStatus = {
     code: 'LOGIN200',
     message: '카카오 로그인 성공했습니다!',
   },
-  NAVER_LOGIN_SUCCESS: {
-    status: StatusCodes.OK,
-    isSuccess: true,
-    code: 'LOGIN200',
-    message: '네이버 로그인 성공했습니다!',
-  },
-  NEW_USER_NAVER_LOGIN_SUCCESS: {
-    status: StatusCodes.OK,
-    isSuccess: true,
-    code: 'LOGIN200',
-    message: '새로운 회원의 네이버 로그인에 성공했습니다!',
-  },
   LOGIN_NAVER_SUCCESS: {
     status: StatusCodes.OK,
     isSuccess: true,
     code: 'LOGIN200',
-    message: '기존 회원의 네이버 로그인에 성공했습니다!',
+    message: '네이버 로그인에 성공했습니다!',
   },
   LOGIN_SUCCESS: {
     status: StatusCodes.OK,
