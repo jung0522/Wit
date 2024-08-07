@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-
+import { errResponse } from '../config/response.js';
+import { errStatus } from '../config/errorStatus.js';
 dotenv.config();
 
 const generateToken = (user) => {
@@ -23,13 +24,13 @@ const authenticateJWT = (req, res, next) => {
     const token = authHeader.split(' ')[1];
     jwt.verify(token, process.env.JWT_SECRET_KEY, (err, verifiedToken) => {
       if (err) {
-        res.sendStatus(403);
+        return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
       }
       req.verifiedToken = verifiedToken;
       next();
     });
   } else {
-    res.sendStatus(401);
+    return res.send(errResponse(errStatus.AUTHENTICATION_FAILED));
   }
 };
 
