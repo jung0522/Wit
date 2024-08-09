@@ -14,11 +14,19 @@ export const successStatus = {
     code: 'TOKEN200',
     message: 'JWT 토큰 검증 성공',
   },
+
   SIGNUP_SUCCESS: {
     status: StatusCodes.OK,
     isSuccess: true,
     code: 'MEMBER200',
     message: '회원가입 성공입니다.',
+  },
+
+  TOKEN_REFRESH_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'TOKEN 200',
+    message: 'ACCESS TOKEN 재발급 성공입니다.',
   },
   // 로그인
   KAKAO_LOGIN_PAGE_SUCCESS: {

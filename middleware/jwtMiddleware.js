@@ -1,21 +1,35 @@
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-import { errResponse } from '../config/response.js';
+import { errResponse, response } from '../config/response.js';
 import { errStatus } from '../config/errorStatus.js';
+import { successStatus } from '../config/successStatus.js';
+import redisClient from '../config/redis-config.js';
 dotenv.config();
 
 const generateToken = (user) => {
-  return jwt.sign({ id: user.user_id }, process.env.JWT_SECRET_KEY, {
-    // access 토큰 유효 기간 설정
-    expiresIn: '1h',
-  });
+  const accessToken = jwt.sign(
+    { id: user.user_id },
+    process.env.JWT_SECRET_KEY,
+    {
+      // access 토큰 유효 기간 설정
+      expiresIn: '1h',
+    }
+  );
+  return accessToken;
 };
 
-const generateRefreshToken = (user) => {
-  return jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET_KEY, {
-    // refresh 토큰의 유효 기간 설정
-    expiresIn: '14d',
-  });
+const generateRefreshToken = async (user) => {
+  const refreshToken = jwt.sign(
+    { id: user.id },
+    process.env.JWT_REFRESH_SECRET_KEY,
+    {
+      // refresh 토큰의 유효 기간 설정
+      expiresIn: '14d',
+    }
+  );
+  // redis에 14일 만료기한으로 저장
+  await redisClient.SETEX(user.id, 1209600, refreshToken);
+  return refreshToken;
 };
 
 const authenticateJWT = (req, res, next) => {
@@ -34,4 +48,45 @@ const authenticateJWT = (req, res, next) => {
   }
 };
 
-export { authenticateJWT, generateToken, generateRefreshToken };
+const refreshAccessToken = async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.send(errResponse(errStatus.REFRESH_TOKEN_MISIING));
+  }
+  try {
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET_KEY
+    );
+    const storedRefreshToken = redisClient.get(decoded.id);
+
+    if (!storedRefreshToken || storedRefreshToken !== refreshToken) {
+      return res.send(errResponse(errStatus.INVALID_REFRESH_TOKEN));
+    }
+    const newAccessToken = generateToken({ user_id: decoded.id });
+    return res.send(
+      response(successStatus.TOKEN_REFRESH_SUCCESS, newAccessToken)
+    );
+  } catch (err) {
+    return res.send(errResponse(errStatus.REFRESH_TOKEN_EXPIRED));
+  }
+};
+
+const logout = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    redisClient.del(userId);
+    return res.send(response(successStatus.LOGOUT_SUCCESS));
+  } catch (err) {
+    return res.send(errResponse(errStatus.LOGOUT_FAILURE));
+  }
+};
+
+export {
+  authenticateJWT,
+  generateToken,
+  generateRefreshToken,
+  refreshAccessToken,
+  logout,
+};

@@ -28,6 +28,7 @@ const naverStrategy = () => {
             // 사용자 존재 시
             const accessToken = generateToken(exUser);
             const refreshToken = generateRefreshToken(exUser);
+
             return done(null, exUser, {
               accessToken,
               refreshToken,

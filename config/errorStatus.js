@@ -97,6 +97,24 @@ export const errStatus = {
     code: 'TOKEN401',
     message: 'JWT 토큰 검증 실패',
   },
+
+  REFRESH_TOKEN_MISIING: {
+    isSuccess: false,
+    code: 'TOKEN401',
+    message: 'REFRESH 토큰이 없습니다.',
+  },
+
+  INVALID_REFRESH_TOKEN: {
+    isSuccess: false,
+    code: 'TOKEN401',
+    message: 'REFRESH 토큰값이 유효하지 않습니다.',
+  },
+  REFRESH_TOKEN_EXPIRED: {
+    isSuccess: false,
+    code: 'TOKEN401',
+    message: 'REFRESH 토큰값이 만료됐습니다. 다시 로그인 해주세요!',
+  },
+
   // 게시글 오류
   POST_NOT_FOUND: {
     status: StatusCodes.NOT_FOUND,
