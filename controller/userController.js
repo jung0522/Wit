@@ -70,7 +70,7 @@ const updateProfileImage = [
         originalName: file.originalname,
         mimeType: file.mimetype,
         size: file.size,
-        url: file.location, // S3에 업로드된 파일의 URL
+        url: file.location,
         user_id: user_id,
       };
       res.send(response(successStatus.UPLOAD_PROFILE_IMAGE_SUCCESS, image));

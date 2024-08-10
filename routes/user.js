@@ -39,11 +39,15 @@ userRouter.get(
   }
 );
 
+userRouter.post('/logout', authenticateJWT, logout);
+
 // 회원 정보 모두 조회 (이미지 제외)
 userRouter.route('/').get(authenticateJWT, getAllUserController);
 
 // 회원 탈퇴
 userRouter.delete('/withdraw/:user_id', authenticateJWT, deleteUserController);
+
+userRouter.post('/refresh_token', refreshAccessToken);
 
 userRouter
   .route('/:user_id')
@@ -59,8 +63,3 @@ userRouter
   .get(authenticateJWT, getProfileImage)
   // 회원 프로필 이미지 수정, 업로드
   .post(authenticateJWT, updateProfileImage);
-
-// access Token 갱신
-userRouter.post('/refresh_token', refreshAccessToken);
-
-userRouter.post('/logout', logout);

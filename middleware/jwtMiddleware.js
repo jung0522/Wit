@@ -19,8 +19,9 @@ const generateToken = (user) => {
 };
 
 const generateRefreshToken = async (user) => {
+  const userId = String(user[0].user_id);
   const refreshToken = jwt.sign(
-    { id: user.id },
+    { id: userId },
     process.env.JWT_REFRESH_SECRET_KEY,
     {
       // refresh 토큰의 유효 기간 설정
@@ -28,7 +29,8 @@ const generateRefreshToken = async (user) => {
     }
   );
   // redis에 14일 만료기한으로 저장
-  await redisClient.SETEX(user.id, 1209600, refreshToken);
+  redisClient.SETEX(userId, 1209600, refreshToken);
+
   return refreshToken;
 };
 
@@ -59,7 +61,8 @@ const refreshAccessToken = async (req, res) => {
       refreshToken,
       process.env.JWT_REFRESH_SECRET_KEY
     );
-    const storedRefreshToken = redisClient.get(decoded.id);
+    console.log(decoded);
+    const storedRefreshToken = await redisClient.get(decoded.id);
 
     if (!storedRefreshToken || storedRefreshToken !== refreshToken) {
       return res.send(errResponse(errStatus.INVALID_REFRESH_TOKEN));
@@ -74,9 +77,11 @@ const refreshAccessToken = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  const { userId } = req.body;
+  const { user_id } = req.body;
   try {
-    redisClient.del(userId);
+    console.log('삭제전', await redisClient.get(user_id));
+    await redisClient.del(user_id);
+    console.log('삭제후', await redisClient.get(user_id));
     return res.send(response(successStatus.LOGOUT_SUCCESS));
   } catch (err) {
     return res.send(errResponse(errStatus.LOGOUT_FAILURE));

@@ -14,7 +14,7 @@ const passportConfig = () => {
       .catch((err) => done(err));
   });
 
-  naverStrategy(); // 네이버 전략 등록
+  naverStrategy();
 };
 
 export { passportConfig };
