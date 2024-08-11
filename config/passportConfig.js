@@ -1,5 +1,7 @@
 import passport from 'passport';
 import naverStrategy from '../middleware/naverStrategy.js';
+import kakaoStrategy from '../middleware/kakaoStrategy.js';
+
 import { getOneUser } from '../models/userDao.js';
 
 const passportConfig = () => {
@@ -14,6 +16,7 @@ const passportConfig = () => {
   });
 
   naverStrategy();
+  kakaoStrategy();
 };
 
 export { passportConfig };

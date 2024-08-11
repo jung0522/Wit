@@ -7,7 +7,7 @@ import redisClient from '../config/redis-config.js';
 dotenv.config();
 
 const generateToken = (user) => {
-  let userId = String(user.user_id);
+  let userId = String(user.id);
   const accessToken = jwt.sign(
     { id: userId },
     process.env.JWT_SECRET_KEY,
@@ -20,9 +20,9 @@ const generateToken = (user) => {
 };
 
 const generateRefreshToken = (user) => {
-  let userId = String(user.user_id);
+  let userId = String(user.id);
   if (!userId) {
-    userId = user.user_id;
+    userId = user.id;
   }
 
   const refreshToken = jwt.sign(

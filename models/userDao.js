@@ -10,13 +10,12 @@ import {
   deleteUserQuery,
 } from './userQuery.js';
 
-// 에러 처리 어케할지 고민 좀 하자
 const createUser = async (userData) => {
   const connection = await pool.getConnection();
   try {
-    const { id, name, nickname, age, birthday } = userData;
+    const { id, name, nickname, age, birthday, social_login } = userData;
     let { gender } = userData;
-    if (!name || !nickname || !gender || !age || !birthday) {
+    if (!name || !nickname || !gender || !age || !birthday || !social_login) {
       throw new Error(errStatus.INVALID_USER_DATA.message);
     }
     if (gender === 'M') {
@@ -31,12 +30,14 @@ const createUser = async (userData) => {
       gender,
       age,
       birthday,
+      social_login,
     ]);
     if (row) {
       const [result] = await pool.query(findOneUserQuery, [id]);
       return result[0];
     }
   } catch (err) {
+    console.log(err);
   } finally {
     if (connection) connection.release();
   }
@@ -46,6 +47,7 @@ const getAllUser = async () => {
   const connection = await pool.getConnection();
   try {
     const [row] = await pool.query(findAllUserQuery);
+    console.log(row);
     return row;
   } catch (err) {
   } finally {

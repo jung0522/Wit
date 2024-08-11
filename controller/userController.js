@@ -12,6 +12,7 @@ import { imageUploader } from '../middleware/imageUploader.js';
 const getAllUserController = async (req, res) => {
   try {
     const data = await getAllUser();
+    console.log(data);
     res.send(response(successStatus.GET_ALL_USERS_SUCCESS, data));
   } catch (err) {
     res.send(errResponse(errStatus.INTERNAL_SERVER_ERROR));

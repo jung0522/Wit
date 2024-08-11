@@ -1,5 +1,5 @@
 const createUserQuery =
-  'INSERT INTO user (user_id, username, usernickname, gender, age, birth) VALUES (?, ?, ?, ?, ?, ?)';
+  'INSERT INTO user (user_id, username, usernickname, gender, age, birth, social_login) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
 const findAllUserQuery = 'SELECT * FROM user';
 

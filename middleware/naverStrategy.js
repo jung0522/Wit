@@ -20,25 +20,25 @@ const naverStrategy = () => {
       async (accessToken, refreshToken, profile, done) => {
         try {
           // NaverProfile에서 필요한 정보를 추출
-          const userData = profile._json.response;
+          let userData = profile._json.response;
           const { id } = userData;
           // 기존 사용자 조회
           const exUser = await getOneUser(id);
           if (exUser) {
             // 사용자 존재 시
             const accessToken = generateToken(exUser);
-            const refreshToken = await generateRefreshToken(exUser);
+            const refreshToken = generateRefreshToken(exUser);
             return done(null, exUser, {
               accessToken,
               refreshToken,
             });
           } else {
             // 사용자 없으면 새로 생성
+            userData.birthday = userData.birthday.split('-').join('');
+            userData.social_login = 'naver';
             const newUser = await createUser(userData);
             const accessToken = generateToken(newUser);
             const refreshToken = generateRefreshToken(newUser);
-            console.log('access', accessToken);
-            console.log('refresh', refreshToken);
             return done(null, newUser, {
               accessToken,
               refreshToken,
