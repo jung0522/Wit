@@ -37,6 +37,8 @@ const naverStrategy = () => {
             const newUser = await createUser(userData);
             const accessToken = generateToken(newUser);
             const refreshToken = generateRefreshToken(newUser);
+            console.log('access', accessToken);
+            console.log('refresh', refreshToken);
             return done(null, newUser, {
               accessToken,
               refreshToken,

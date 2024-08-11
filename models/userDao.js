@@ -32,7 +32,10 @@ const createUser = async (userData) => {
       age,
       birthday,
     ]);
-    return row;
+    if (row) {
+      const [result] = await pool.query(findOneUserQuery, [id]);
+      return result[0];
+    }
   } catch (err) {
   } finally {
     if (connection) connection.release();
@@ -62,7 +65,7 @@ const getOneUser = async (id) => {
       return null;
     }
 
-    return row;
+    return row[0];
   } catch (error) {
   } finally {
     if (connection) connection.release();
@@ -86,7 +89,10 @@ const updateUser = async (userData, user_id) => {
         birth,
         user_id,
       ]);
-      return row;
+      if (row) {
+        const [result] = await pool.query(findOneUserQuery, [user_id]);
+        return result[0];
+      }
     } else {
       throw new Error(errStatus.USER_ID_IS_WRONG.message);
     }

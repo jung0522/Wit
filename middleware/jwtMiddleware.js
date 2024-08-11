@@ -7,24 +7,26 @@ import redisClient from '../config/redis-config.js';
 dotenv.config();
 
 const generateToken = (user) => {
+  const userId = String(user[0].user_id);
   const accessToken = jwt.sign(
-    { id: user.user_id },
+    { id: userId },
     process.env.JWT_SECRET_KEY,
+    // access 토큰 유효 기간 설정
     {
-      // access 토큰 유효 기간 설정
       expiresIn: '1h',
     }
   );
   return accessToken;
 };
 
-const generateRefreshToken = async (user) => {
+const generateRefreshToken = (user) => {
   const userId = String(user[0].user_id);
+
   const refreshToken = jwt.sign(
     { id: userId },
     process.env.JWT_REFRESH_SECRET_KEY,
+    // refresh 토큰의 유효 기간 설정
     {
-      // refresh 토큰의 유효 기간 설정
       expiresIn: '14d',
     }
   );
@@ -61,7 +63,6 @@ const refreshAccessToken = async (req, res) => {
       refreshToken,
       process.env.JWT_REFRESH_SECRET_KEY
     );
-    console.log(decoded);
     const storedRefreshToken = await redisClient.get(decoded.id);
 
     if (!storedRefreshToken || storedRefreshToken !== refreshToken) {
@@ -79,9 +80,7 @@ const refreshAccessToken = async (req, res) => {
 const logout = async (req, res) => {
   const { user_id } = req.body;
   try {
-    console.log('삭제전', await redisClient.get(user_id));
     await redisClient.del(user_id);
-    console.log('삭제후', await redisClient.get(user_id));
     return res.send(response(successStatus.LOGOUT_SUCCESS));
   } catch (err) {
     return res.send(errResponse(errStatus.LOGOUT_FAILURE));

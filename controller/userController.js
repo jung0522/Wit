@@ -33,16 +33,6 @@ const updateUserController = async (req, res) => {
     const { user_id } = req.params;
     const userData = req.body;
     const data = await updateUser(userData, user_id);
-    // data가 아래 형식으로 들어옴 좀 더 응답 메시지 좋게 만들려면 어떻게 해야할까?
-    // ResultSetHeader {
-    //   fieldCount: 0,
-    //   affectedRows: 1,
-    //   insertId: 0,
-    //   info: 'Rows matched: 1  Changed: 0  Warnings: 0',
-    //   serverStatus: 2,
-    //   warningStatus: 0,
-    //   changedRows: 0
-    // }
     res.send(response(successStatus.UPDATE_USER_SUCCESS, data));
   } catch (err) {
     res.send(errResponse(errStatus.USER_ID_IS_WRONG));
@@ -52,8 +42,8 @@ const updateUserController = async (req, res) => {
 const deleteUserController = async (req, res) => {
   try {
     const { user_id } = req.params;
-    const data = await deleteUser(user_id);
-    res.send(response(successStatus.WITHDRAW_SUCCESS, data));
+    await deleteUser(user_id);
+    res.send(response(successStatus.WITHDRAW_SUCCESS, null));
   } catch (err) {
     res.send(errResponse(errStatus.USER_ID_IS_WRONG));
   }
