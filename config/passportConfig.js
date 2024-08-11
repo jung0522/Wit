@@ -4,8 +4,7 @@ import { getOneUser } from '../models/userDao.js';
 
 const passportConfig = () => {
   passport.serializeUser((user, done) => {
-    const [userData] = user;
-    done(null, userData.user_id);
+    done(null, user.user_id);
   });
 
   passport.deserializeUser((id, done) => {

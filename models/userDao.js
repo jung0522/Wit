@@ -1,6 +1,6 @@
 import { pool } from '../config/db-config.js';
 import { errStatus } from '../config/errorStatus.js';
-import { BaseError } from '../config/error.js';
+import { logout } from '../middleware/jwtMiddleware.js';
 
 import {
   createUserQuery,
@@ -106,10 +106,10 @@ const deleteUser = async (id) => {
   const connection = await pool.getConnection();
   try {
     const [row] = await pool.query(deleteUserQuery, [id]);
-
     if (!id) {
       throw new Error(errStatus.USER_ID_IS_WRONG.message);
     }
+    await logout();
     return row;
   } catch (err) {
   } finally {
