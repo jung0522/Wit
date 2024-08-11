@@ -49,7 +49,8 @@ export const successStatus = {
     code: 'LOGIN200',
     message: '카카오 로그인 성공했습니다!',
   },
-  LOGIN_NAVER_SUCCESS: {
+
+  NAVER_LOGIN_SUCCESS: {
     status: StatusCodes.OK,
     isSuccess: true,
     code: 'LOGIN200',

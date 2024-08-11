@@ -35,7 +35,24 @@ userRouter.get(
     req.session.accessToken = accessToken;
 
     const data = { accessToken, refreshToken };
-    res.send(response(successStatus.LOGIN_NAVER_SUCCESS, data));
+    res.send(response(successStatus.NAVER_LOGIN_SUCCESS, data));
+  }
+);
+
+userRouter.get(
+  '/kakao_signin',
+  passport.authenticate('kakao', { authType: 'reprompt' })
+);
+
+userRouter.get(
+  '/kakao_signin/callback',
+  passport.authenticate('kakao', { failureRedirect: '/kakao_signin' }),
+  (req, res) => {
+    const { accessToken, refreshToken } = req.authInfo;
+    req.session.accessToken = accessToken;
+
+    const data = { accessToken, refreshToken };
+    res.send(response(successStatus.KAKAO_LOGIN_SUCCESS, data));
   }
 );
 
