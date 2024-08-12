@@ -31,10 +31,9 @@ userRouter.get(
   '/naver_signin/callback',
   passport.authenticate('naver', { failureRedirect: '/naver_signin' }),
   (req, res) => {
-    const { accessToken, refreshToken } = req.authInfo;
+    const { user_id, accessToken, refreshToken } = req.authInfo;
     req.session.accessToken = accessToken;
-
-    const data = { accessToken, refreshToken };
+    const data = { user_id, accessToken, refreshToken };
     res.send(response(successStatus.NAVER_LOGIN_SUCCESS, data));
   }
 );
@@ -48,10 +47,10 @@ userRouter.get(
   '/kakao_signin/callback',
   passport.authenticate('kakao', { failureRedirect: '/kakao_signin' }),
   (req, res) => {
-    const { accessToken, refreshToken } = req.authInfo;
+    const { user_id, accessToken, refreshToken } = req.authInfo;
     req.session.accessToken = accessToken;
+    const data = { user_id, accessToken, refreshToken };
 
-    const data = { accessToken, refreshToken };
     res.send(response(successStatus.KAKAO_LOGIN_SUCCESS, data));
   }
 );

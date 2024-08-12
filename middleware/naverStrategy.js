@@ -28,7 +28,9 @@ const naverStrategy = () => {
             // 사용자 존재 시
             const accessToken = generateToken(exUser);
             const refreshToken = generateRefreshToken(exUser);
+            const { user_id } = exUser;
             return done(null, exUser, {
+              user_id,
               accessToken,
               refreshToken,
             });
@@ -39,10 +41,8 @@ const naverStrategy = () => {
             const newUser = await createUser(userData);
             const accessToken = generateToken(newUser);
             const refreshToken = generateRefreshToken(newUser);
-            return done(null, newUser, {
-              accessToken,
-              refreshToken,
-            });
+            const { user_id } = newUser;
+            return done(null, newUser, { user_id, accessToken, refreshToken });
           }
         } catch (error) {
           console.log(error);
