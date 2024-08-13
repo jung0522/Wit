@@ -1,13 +1,12 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-
 import { pool } from './config/db-config.js';
 import SwaggerUi from 'swagger-ui-express';
-import { responseMiddleware } from './config/response-middleware.js'; //응답 미들웨어 불러오기
 import noticesRouter from './routes/notices.js';
 import searchesRouter from './routes/searches.js';
 import usersRouter from './routes/users.js'; 
+import onboardingRouter from './routes/onboarding.js'
 
 
 dotenv.config();
@@ -19,8 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// 기본 응답 셋팅 미들웨어 사용
-app.use(responseMiddleware);
+
 
 // app.use('/api-docs', SwaggerUi.serve, SwaggerUi.setup(specs));
 
@@ -36,6 +34,7 @@ app.listen(app.get('port'), () => {
 app.use('/notices',noticesRouter); //공지사항 라우트 설정 
 app.use('/searches', searchesRouter);
 app.use('/users', usersRouter);
+app.use('/onboarding', onboardingRouter);
 
 (async () => { //DB랑 연결 성공했는지 확인해보는 코드 
   try {

@@ -1,6 +1,6 @@
 import express from 'express';
 import { pool } from '../config/db-config.js';
-import { saveRecentSearch } from '../services/recentSearchService.js';
+import { saveRecentSearch } from '../services/recentSearchService.js';
 import { updatePopularSearches } from '../services/popularSearchService.js';
 import { countSearches, searchProducts, getPopularSearches } from '../models/searchesDao.js';
 import { successStatus } from '../config/successStatus.js';
