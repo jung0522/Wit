@@ -11,13 +11,20 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.7.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.1",
+    "express": "^4.19.2",
     "express-async-handler": "^1.2.0",
     "http-status-codes": "^2.3.0",
+
+    "morgan": "^1.10.0",
+    "mysql2": "^3.11.0",
+    "redis": "^4.7.0"
+
     "mysql": "^2.18.1",
-    "mysql2": "^3.9.7"
+   
+
   },
   "devDependencies": {
     "@babel/cli": "^7.24.1",
@@ -27,6 +34,6 @@
     "nodemon": "^3.1.0",
     "swagger-cli": "^4.0.4",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0"
+    "swagger-ui-express": "^5.0.1"
   }
 }
