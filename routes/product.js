@@ -33,11 +33,11 @@ router.get('/products/:productId', async (req, res) => {
 
     // 도움이 돼요 많은 순 상위 3개 리뷰 가져오기
     const topReviewsQuery = `
-    SELECT r.id AS review_id, r.rating, r.content, r.created_at, u.username AS user_name, u.userprofile AS user_profile_image, r.is_true AS helpful_count, r.image AS images
+    SELECT r.id AS review_id, r.rating, r.content, r.created_at, u.username AS user_name, u.userprofile AS user_profile_image, r.review_helpful AS helpful_count, r.image AS images
     FROM review r
     JOIN user u ON r.user_id = u.user_id
     WHERE r.product_id = ? AND r.image IS NOT NULL
-    ORDER BY r.is_true DESC
+    ORDER BY r.review_helpful DESC
     LIMIT 3
   `;
   
@@ -141,7 +141,7 @@ router.post('/products/:productId/reviews', async (req, res, next) => {
     const newReviewId = result.insertId;
 
     const getReviewQuery = `
-      SELECT r.id AS review_id, r.rating, r.content, r.created_at, u.username AS user_name, u.userprofile AS user_profile_image, r.is_true AS helpful_count, r.image AS images
+      SELECT r.id AS review_id, r.rating, r.content, r.created_at, u.username AS user_name, u.userprofile AS user_profile_image, r.review_helpful AS helpful_count, r.image AS images
       FROM review r
       JOIN user u ON r.user_id = u.user_id
       WHERE r.id = ?
@@ -170,7 +170,7 @@ router.get('/products/:productId/reviews/sorted', async (req, res, next) => {
     const queryParams = [productId];
 
     if (sort === 'best') {
-      reviewsQuery += ' ORDER BY is_true DESC';
+      reviewsQuery += ' ORDER BY helpful_count DESC';
     } else {
       reviewsQuery += ' ORDER BY created_at DESC';
     }
