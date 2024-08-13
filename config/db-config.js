@@ -6,7 +6,7 @@ dotenv.config();
 const databaseConfig = {
   host:
     process.env.DB_HOST ||
-    'wit-database-1.chcygck0gruw.ap-northeast-2.rds.amazonaws.com',
+    'wit-database-2.chcygck0gruw.ap-northeast-2.rds.amazonaws.com',
   user: process.env.DB_USER || 'root',
   port: parseInt(process.env.DB_PORT || '3306'),
   database: process.env.DB_TABLE || 'wit',
