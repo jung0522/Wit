@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { pool } from '../config/db-config.js';
 import { response, errResponse } from '../config/response.js';
+import { BadRequestError } from '../config/CustomErrors.js';
 
 const router = Router();
 
 // 카테고리 불러오기 (대분류 및 소분류)
-router.get('/categories', async (req, res) => {
+router.get('/categories', async (req, res, next) => {
   try {
     const mainCategoriesQuery = 'SELECT * FROM main_category';
     const subCategoriesQuery = 'SELECT * FROM sub_category';
@@ -13,6 +14,7 @@ router.get('/categories', async (req, res) => {
     const [mainCategories] = await pool.query(mainCategoriesQuery);
     const [subCategories] = await pool.query(subCategoriesQuery);
 
+    // mainCategories가 비어 있을 경우에도 빈 리스트 반환
     const categories = mainCategories.map(mainCategory => {
       return {
         main_category_id: mainCategory.main_category_id,
@@ -24,12 +26,15 @@ router.get('/categories', async (req, res) => {
       };
     });
 
-    const responseData = response({ isSuccess: true, code: 200, message: 'Categories retrieved successfully' }, { mainCategories: categories });
+    const responseData = response({
+      isSuccess: true,
+      code: 200,
+      message: 'Categories retrieved successfully'
+    }, { mainCategories: categories });
+
     return res.status(200).json(responseData);
   } catch (err) {
-    console.error('Error retrieving categories:', err);
-    const errorData = errResponse({ isSuccess: false, code: 500, message: 'Failed to retrieve categories' });
-    return res.status(500).json(errorData);
+    console.log(err)
   }
 });
 
