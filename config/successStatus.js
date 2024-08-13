@@ -170,4 +170,29 @@ export const successStatus = {
     code: 'COMMENT200',
     message: '댓글 삭제 성공했습니다!',
   },
+
+  // 상품 조회 성공
+  PRODUCTS_SEARCH_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'SEARCHES200',
+    message: '기념품 검색에 성공했습니다.',
+  },
+
+  // 유저 최근 검색어 코드 조회 성공
+  RECENT_SEARCHES_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess:true,
+    code: 'RECENT_SEARCHES200',
+    message: '최근 검색어 조회에 성공했습니다.',
+  },
+
+  // 인기 검색어 조회 성공
+  POPULAR_SEARCHES_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'POPULAR_SEARCHES200',
+    message: '인기 검색어 조회에 성공했습니다.',
+  },
+
 };

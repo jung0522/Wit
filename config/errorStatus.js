@@ -93,6 +93,7 @@ export const errStatus = {
 
   //토큰 오류
   TOKEN_VERIFICATION_FAILURE: {
+    status: StatusCodes.UNAUTHORIZED,
     isSuccess: false,
     code: 'TOKEN401',
     message: 'JWT 토큰 검증 실패',
@@ -167,4 +168,26 @@ export const errStatus = {
     code: 'COMMENT500',
     message: '댓글 삭제 중 오류가 발생했습니다.',
   },
+  PROUDCT_SEARCH_FAILED: {
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+    isSuccess: false,
+    code: 'SEARCHES500',
+    message: '기념품 검색에 실패했습니다.',
+  },
+  // 유저 최근 검색어 조회 실패 
+  RECENT_SEARCHES_FAILED: {
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+    isSuccess: false,
+    code: 'RECENT_SEARCHES500',
+    message: '최근 검색어 조회에 실패했습니다.',
+  },
+
+  // 인기 검색어 조회 실패
+  POPULAR_SEARCHES_FAILED: {
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+    isSuccess: false,
+    code: 'POPULAR_SEARCHES500',
+    message: '인기 검색어 조회에 실패했습니다.',
+  },
+
 };
