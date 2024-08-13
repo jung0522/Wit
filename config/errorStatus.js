@@ -39,13 +39,13 @@ export const errStatus = {
     message: '잘못된 확장자입니다.',
   },
   // 회원가입 에러
-  AUTHENTICATION_FAILED: {
+  SIGNUP_AUTHENTICATION_FAILED: {
     status: StatusCodes.UNAUTHORIZED,
     isSuccess: false,
-    code: 'MEMBER001',
+    code: 'MEMBER401',
     message: '인증되지 않았습니다. ID/PW를 확인해주세요.',
   },
-  ALREADY_REGISTERED: {
+  SIGNUP_ALREADY_REGISTERED: {
     status: StatusCodes.UNAUTHORIZED,
     isSuccess: false,
     code: 'MEMBER002',
@@ -61,6 +61,7 @@ export const errStatus = {
   },
   //토큰 오류
   TOKEN_VERIFICATION_FAILURE: {
+    status: StatusCodes.UNAUTHORIZED,
     isSuccess: false,
     code: 'TOKEN401',
     message: 'JWT 토큰 검증 실패',
@@ -117,4 +118,26 @@ export const errStatus = {
     code: 'COMMENT500',
     message: '댓글 삭제 중 오류가 발생했습니다.',
   },
+  PROUDCT_SEARCH_FAILED: {
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+    isSuccess: false,
+    code: 'SEARCHES500',
+    message: '기념품 검색에 실패했습니다.',
+  },
+  // 유저 최근 검색어 조회 실패 
+  RECENT_SEARCHES_FAILED: {
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+    isSuccess: false,
+    code: 'RECENT_SEARCHES500',
+    message: '최근 검색어 조회에 실패했습니다.',
+  },
+
+  // 인기 검색어 조회 실패
+  POPULAR_SEARCHES_FAILED: {
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+    isSuccess: false,
+    code: 'POPULAR_SEARCHES500',
+    message: '인기 검색어 조회에 실패했습니다.',
+  },
+
 };
