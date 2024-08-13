@@ -1,0 +1,38 @@
+import { pool } from '../config/db-config.js';
+import * as noticeQuery from '../models/noticeQuery.js';
+
+// 모든 공지 가져오기 
+const getAllNotices = async () => {
+    const [rows] = await pool.query(noticeQuery.getAllNoticesQuery);
+    return rows;
+  };
+
+// 공지사항 상세조회 
+const getNoticeById = async (noticeId) => {
+    const [rows] = await pool.query(noticeQuery.getNoticeByIdQuery, [noticeId]);
+    return rows[0];
+  }; 
+
+// 공지사항 새 글 작성
+const createNotice = async (title, content) => {
+    const [result] = await pool.query(noticeQuery.createNoticeQuery, [title, content]);
+    return result.insertId;
+  };
+  
+const updateNotice = async (noticeId, title, content) => {
+    const [result] = await pool.query(noticeQuery.updateNoticeQuery, [title, content, noticeId]);
+    return result.affectedRows;
+  };
+  
+const deleteNotice = async (noticeId) => {
+    const [result] = await pool.query(noticeQuery.deleteNoticeQuery, [noticeId]);
+    return result.affectedRows;
+  };
+
+  export {
+    getAllNotices,
+    getNoticeById,
+    createNotice,
+    updateNotice,
+    deleteNotice,
+  };

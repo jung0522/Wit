@@ -2,8 +2,14 @@ import express from 'express';
 import { pool } from '../config/db-config.js';
 import { saveRecentSearch } from '../services/recentSearchService.js';
 import { updatePopularSearches } from '../services/popularSearchService.js';
+import { countSearches, searchProducts, getPopularSearches } from '../models/searchesDao.js';
+import { successStatus } from '../config/successStatus.js';
+import { errResponse } from '../config/response.js';
+import {response} from '../config/response.js';
 
-const router = express.Router();
+import { errStatus } from '../config/errorStatus.js';
+
+const router = express.Router(); 
 
 // 기념품 키워드 검색 기능
 router.get('/', async (req, res) => {
@@ -48,29 +54,17 @@ router.get('/', async (req, res) => {
   }
 
   try {
-    const [countRows] = await pool.query(`SELECT COUNT(*) as total FROM product ${whereClause}`, params);
-    const total = countRows[0].total;
-
-    const [rows] = await pool.query(
-        `SELECT product.id, product.name, product.won_price, product.en_price, product.image, 
-              COUNT(review.id) as reviews, AVG(review.rating) as rating 
-       FROM product 
-       LEFT JOIN review ON product.id = review.product_id 
-       ${whereClause} 
-       GROUP BY product.id 
-       ${orderClause} 
-       LIMIT ? OFFSET ?`, 
-        [...params, parseInt(limit), parseInt(offset)]
-        );
+    const total = await countSearches(whereClause, params);
+    const products = await searchProducts(whereClause,orderClause,params,limit,offset);
 
     const result = {
       total: total,
       page: parseInt(page),
       limit: parseInt(limit),
-      products: rows
+      products: products
     };
 
-    res.success('PRODUCTS_SEARCH_SUCCESS', result);
+    res.send(response(successStatus.PRODUCTS_SEARCH_SUCCESS, result));
 
     // 추가 작업: 인기 검색어 업데이트 및 최근 검색어 저장
     if (query) {
@@ -84,26 +78,20 @@ router.get('/', async (req, res) => {
 
 
   } catch (err) {
-    res.error('PRODUCTS_SEARCH_FAILED');
+    console.log(err);
+    res.send(errResponse(errStatus.PRODUCTS_SEARCH_FAILED));
   }
 });
 
 // 인기 검색어 조회 기능 (상위 10개)
 router.get('/popular', async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT keyword FROM popular_searches 
-       ORDER BY search_count DESC, last_searched_at DESC 
-       LIMIT 10`
-    );
+    const rows= await getPopularSearches();
+    const keywords = rows.map((row, index) => `${index + 1}위: ${row.keyword}`);
 
-    const keywords = rows.map((row, index) => {
-      return `${index + 1}위: ${row.keyword}`;
-    });
-
-    res.success('POPULAR_SEARCHES_SUCCESS', keywords);
+    res.send(response(successStatus.POPULAR_SEARCHES_SUCCESS, keywords));
   } catch (err) {
-    res.error('POPULAR_SEARCHES_FAILED');
+    res.send(errResponse(errStatus.POPULAR_SEARCHES_FAILED));
   }
 });
 

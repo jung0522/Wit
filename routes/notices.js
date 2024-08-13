@@ -1,15 +1,22 @@
 import express from 'express';
 import { pool } from '../config/db-config.js';
+import { createNotice, deleteNotice, getAllNotices, getNoticeById, updateNotice } from '../models/noticeDao.js';
+import { successStatus } from '../config/successStatus.js';
+import { errResponse } from '../config/response.js';
+import { errStatus } from '../config/errorStatus.js';
+import { response } from '../config/response.js';
 
 const router = express.Router();
 
 // 공지사항 목록 조회 
 router.get('/', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM notice');
-    res.success('GET_ALL_POSTS_SUCCESS',rows);
+    const notices = await getAllNotices();
+    res.send(response(successStatus.GET_ALL_POSTS_SUCCESS,notices));
   } catch (err) {
-    res.error('INTERNAL_SERVER_ERROR');
+    console.log(err);
+    res.send(errResponse(errStatus.INTERNAL_SERVER_ERROR));
+   
   }
 });
 
@@ -18,14 +25,14 @@ router.get('/:noticeid', async (req,res) => {
   const noticeId = req.params.noticeid;
 
   try {
-    const [rows]= await pool.query('SELECT * FROM notice WHERE notice_id=?', [noticeId]);
+   const notice = await getNoticeById(noticeId);
 
-    if (rows.length === 0) {
-      return res.error('POST_NOT_FOUND');
+    if (!notice) {
+      return res.send(errResponse(errStatus.POST_NOT_FOUND));
     }
-    res.success('GET_ONE_POST_SUCCESS', rows[0]);
+    res.send(response(successStatus.GET_ONE_POST_SUCCESS, notice));
   } catch (err) {
-    res.error('INTERNAL_SERVER_ERROR');
+    res.send(errResponse(errStatus.INTERNAL_SERVER_ERROR));
   }
     
 });
@@ -39,14 +46,13 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    const [result] = await pool.query('INSERT INTO notices (title, content) VALUES (?, ?)', [title, content]);
-    const noticeId = result.insertId;
+    const noticeId = await createNotice(title,content);
+    const notice = await getNoticeById(noticeId);
 
-    const [rows] = await pool.query('SELECT * FROM notice WHERE notice_id = ?', [noticeId]);
-
-    res.success('MAKE_POST_SUCCESS', rows[0]);
+    res.send(response(successStatus.MAKE_POST_SUCCESS, notice));
   } catch (err) {
-    res.error('POST_CREATION_FAILED');
+    console.log(err);
+    res.send(errResponse(errStatus.POST_CREATION_FAILED));
   }
 });
 
@@ -56,21 +62,21 @@ router.put('/:noticeid', async (req, res) => {
   const { title, content } = req.body;
 
   if (!title || !content) {
-    return res.error('BAD_REQUEST');
+    return res.send(errResponse(errStatus.BAD_REQUEST));
   }
 
   try {
-    const [result] = await pool.query('UPDATE notice SET title = ?, content = ?, updated_at = CURRENT_TIMESTAMP WHERE notice_id = ?', [title, content, noticeId]);
+    const affectedRows = await updateNotice(noticeId,title,content);
 
-    if (result.affectedRows === 0) {
-      return res.error('POST_NOT_FOUND');
+    if (affectedRows === 0) {
+      return res.send(errResponse(errStatus.POST_NOT_FOUND));
     }
 
-    const [rows] = await pool.query('SELECT * FROM notice WHERE notice_id = ?', [noticeId]);
+    const updatedNotice = await getNoticeById(noticeId);
 
-    res.success('UPDATE_POST_SUCCESS', rows[0]);
+    res.send(response(successStatus.UPDATE_POST_SUCCESS, updateNotice));
   } catch (err) {
-    res.error('POST_UPDATE_FAILED');
+    res.send(errResponse(errStatus.POST_UPDATE_FAILED));
   }
 });
 
@@ -79,15 +85,16 @@ router.delete('/:noticeid', async (req, res) => {
   const noticeId = req.params.noticeid;
 
   try {
-    const [result] = await pool.query('DELETE FROM notice WHERE notice_id = ?', [noticeId]);
+    
+    const affectedRows = await deleteNotice(noticeId);
 
-    if (result.affectedRows === 0) {
-      return res.error('POST_NOT_FOUND');
+    if (affectedRows === 0) {
+      return res.send(errResponse(errStatus.POST_NOT_FOUND));
     }
 
-    res.success('DELETE_POST_SUCCESS', null);
+    res.send(successStatus.DELETE_POST_SUCCESS, null);
   } catch (err) {
-    res.error('POST_DELETE_FAILED');
+    res.send(errResponse(errStatus.POST_DELETE_FAILED));
   }
 });
 
