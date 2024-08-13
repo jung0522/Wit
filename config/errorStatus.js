@@ -38,12 +38,11 @@ export const errStatus = {
     code: 'COMMON005',
     message: '잘못된 확장자입니다.',
   },
-  // 회원가입 에러
-  SIGNUP_AUTHENTICATION_FAILED: {
+  AUTHENTICATION_FAILED: {
     status: StatusCodes.UNAUTHORIZED,
     isSuccess: false,
     code: 'MEMBER401',
-    message: '인증되지 않았습니다. ID/PW를 확인해주세요.',
+    message: '인증되지 않았습니다.',
   },
   SIGNUP_ALREADY_REGISTERED: {
     status: StatusCodes.UNAUTHORIZED,
@@ -51,14 +50,47 @@ export const errStatus = {
     code: 'MEMBER002',
     message: '이미 가입하였습니다.',
   },
+  USER_ID_IS_WRONG: {
+    status: StatusCodes.BAD_REQUEST,
+    isSuccess: false,
+    code: 'COMMON005',
+    message: '유저 id가 잘못됐습니다.',
+  },
+  INVALID_USER_DATA: {
+    status: StatusCodes.BAD_REQUEST,
+    isSuccess: false,
+    code: 'USER 400',
+    message: '유저 데이터가 잘못됐습니다.',
+  },
+
+  UPLOAD_PROFILE_IMAGE_FAIL: {
+    status: StatusCodes.BAD_REQUEST,
+    isSuccess: false,
+    code: 'USER 400',
+    message: '유저 프로필 이미지 업로드에 실패했습니다.',
+  },
+  GET_PROFILE_IMAGE_FAIL: {
+    status: StatusCodes.BAD_REQUEST,
+    isSuccess: false,
+    code: 'USER 400',
+    message: '유저 프로필 이미지 조회에 실패했습니다.',
+  },
 
   // 로그인 에러
+  INVALID_CREDENTIALS_MAKE_ACCOUNT: {
+    status: StatusCodes.UNAUTHORIZED,
+    isSuccess: false,
+    code: 'MEMBER002',
+    message: '입력하신 정보에 해당하는 계정이 없습니다. 계정을 생성하겠습니다.',
+  },
+
   INVALID_CREDENTIALS: {
     status: StatusCodes.UNAUTHORIZED,
     isSuccess: false,
     code: 'MEMBER002',
-    message: '입력하신 정보가 없습니다. 회원가입을 먼저 진행해주세요.',
+    message: '입력하신 정보에 해당하는 계정이 없습니다. 계정을 생성하겠습니다.',
   },
+
   //토큰 오류
   TOKEN_VERIFICATION_FAILURE: {
     status: StatusCodes.UNAUTHORIZED,
@@ -66,6 +98,24 @@ export const errStatus = {
     code: 'TOKEN401',
     message: 'JWT 토큰 검증 실패',
   },
+
+  REFRESH_TOKEN_MISIING: {
+    isSuccess: false,
+    code: 'TOKEN401',
+    message: 'REFRESH 토큰이 없습니다.',
+  },
+
+  INVALID_REFRESH_TOKEN: {
+    isSuccess: false,
+    code: 'TOKEN401',
+    message: 'REFRESH 토큰값이 유효하지 않습니다.',
+  },
+  REFRESH_TOKEN_EXPIRED: {
+    isSuccess: false,
+    code: 'TOKEN401',
+    message: 'REFRESH 토큰값이 만료됐습니다. 다시 로그인 해주세요!',
+  },
+
   // 게시글 오류
   POST_NOT_FOUND: {
     status: StatusCodes.NOT_FOUND,

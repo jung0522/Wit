@@ -14,11 +14,19 @@ export const successStatus = {
     code: 'TOKEN200',
     message: 'JWT 토큰 검증 성공',
   },
+
   SIGNUP_SUCCESS: {
     status: StatusCodes.OK,
     isSuccess: true,
     code: 'MEMBER200',
     message: '회원가입 성공입니다.',
+  },
+
+  TOKEN_REFRESH_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'TOKEN 200',
+    message: 'ACCESS TOKEN 재발급 성공입니다.',
   },
   // 로그인
   KAKAO_LOGIN_PAGE_SUCCESS: {
@@ -27,23 +35,26 @@ export const successStatus = {
     code: 'LOGIN200',
     message: '카카오 로그인 페이지 불러오기에 성공했습니다!',
   },
+
   NAVER_LOGIN_PAGE_SUCCESS: {
     status: StatusCodes.OK,
     isSuccess: true,
     code: 'LOGIN200',
     message: '네이버 로그인 페이지 불러오기에 성공했습니다!',
   },
+
   KAKAO_LOGIN_SUCCESS: {
     status: StatusCodes.OK,
     isSuccess: true,
     code: 'LOGIN200',
     message: '카카오 로그인 성공했습니다!',
   },
+
   NAVER_LOGIN_SUCCESS: {
     status: StatusCodes.OK,
     isSuccess: true,
     code: 'LOGIN200',
-    message: '네이버 로그인 성공했습니다!',
+    message: '네이버 로그인에 성공했습니다!',
   },
   LOGIN_SUCCESS: {
     status: StatusCodes.OK,
@@ -63,6 +74,37 @@ export const successStatus = {
     isSuccess: true,
     code: 'WITHDRAW200',
     message: '회원탈퇴에 성공했습니다!',
+  },
+
+  GET_ALL_USERS_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'USER200',
+    message: '유저 전체 정보 조회에 성공했습니다!',
+  },
+  GET_ONE_USER_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'USER200',
+    message: '유저 정보 조회에 성공했습니다!',
+  },
+  UPDATE_USER_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'USER200',
+    message: '유저 정보 수정에 성공했습니다!',
+  },
+  UPLOAD_PROFILE_IMAGE_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'USER200',
+    message: '유저 프로필 이미지 업로드에 성공했습니다!',
+  },
+  GET_PROFILE_IMAGE_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'USER200',
+    message: '유저 프로필 이미지 조회에 성공했습니다!',
   },
 
   // 랜딩 페이지

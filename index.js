@@ -2,12 +2,12 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
+import passport from 'passport';
+import session from 'express-session';
 import morgan from 'morgan'; // 로그 미들웨어 추가
 import { successResponse, errorResponse, response, errResponse } from './config/response.js';
 import categoryRoutes from './routes/category.js';
 import productRoutes from './routes/product.js'; // 필요한 라우트만 가져옴
-
-
 import { pool } from './config/db-config.js';
 import SwaggerUi from 'swagger-ui-express';
 import { responseMiddleware } from './config/response-middleware.js'; //응답 미들웨어 불러오기
@@ -17,7 +17,12 @@ import usersRouter from './routes/users.js';
 
 
 
-dotenv.config(); // .env 파일에서 환경변수 로드
+import { userRouter } from './routes/user.js';
+import { passportConfig } from './config/passportConfig.js';
+
+dotenv.config();
+
+
 
 const app = express();
 
@@ -28,6 +33,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 
+app.use(
+  session({
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Passport 설정
+passportConfig();
+
+app.use('/api/users', userRouter);
 // 카테고리 및 제품 라우트 사용
 app.use('/api', categoryRoutes);
 app.use('/api', productRoutes); 
@@ -46,6 +65,7 @@ app.get('/', async (req, res) => {
 });
 
 // Swagger 설정 (주석 해제하여 사용)
+
 
 // app.use('/api-docs', SwaggerUi.serve, SwaggerUi.setup(specs));
 
