@@ -5,6 +5,7 @@ import { logout } from '../middleware/jwtMiddleware.js';
 import {
   createUserQuery,
   findAllUserQuery,
+  findUserRealIdQuery,
   findOneUserQuery,
   updateUserQuery,
   deleteUserQuery,
@@ -32,8 +33,11 @@ const createUser = async (userData) => {
       birthday,
       social_login,
     ]);
+
     if (row) {
-      const [result] = await pool.query(findOneUserQuery, [id]);
+      const [realIdData] = await pool.query(findUserRealIdQuery, [id]);
+      const realId = realIdData[0].user_id;
+      const [result] = await pool.query(findOneUserQuery, [realId]);
       return result[0];
     }
   } catch (err) {
@@ -47,7 +51,6 @@ const getAllUser = async () => {
   const connection = await pool.getConnection();
   try {
     const [row] = await pool.query(findAllUserQuery);
-    console.log(row);
     return row;
   } catch (err) {
   } finally {
@@ -61,6 +64,7 @@ const getOneUser = async (id) => {
     if (!id) {
       throw new Error(errStatus.USER_ID_IS_WRONG.message);
     }
+
     const [row] = await pool.query(findOneUserQuery, [id]);
 
     if (row.length === 0) {
@@ -69,6 +73,7 @@ const getOneUser = async (id) => {
 
     return row[0];
   } catch (error) {
+    throw new Error(errStatus.USER_ID_IS_WRONG.message);
   } finally {
     if (connection) connection.release();
   }
@@ -91,14 +96,19 @@ const updateUser = async (userData, user_id) => {
         birth,
         user_id,
       ]);
+
+      if (row.warningStatus === 1) {
+        console.log(1);
+        throw new Error(errStatus.USER_ID_IS_WRONG.message);
+      }
+
       if (row) {
         const [result] = await pool.query(findOneUserQuery, [user_id]);
         return result[0];
       }
-    } else {
-      throw new Error(errStatus.USER_ID_IS_WRONG.message);
     }
   } catch (err) {
+    throw new Error(errStatus.USER_ID_IS_WRONG.message);
   } finally {
     if (connection) connection.release();
   }
