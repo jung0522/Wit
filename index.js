@@ -1,7 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-
+import SwaggerUi from 'swagger-ui-express';
+import onboardingRouter from './routes/onboarding.js'
 import passport from 'passport';
 import session from 'express-session';
 import morgan from 'morgan'; // 로그 미들웨어 추가
@@ -9,7 +10,6 @@ import { response, errResponse } from './config/response.js';
 import categoryRoutes from './routes/category.js';
 import productRoutes from './routes/product.js'; // 필요한 라우트만 가져옴
 import { pool } from './config/db-config.js';
-import { responseMiddleware } from './config/response-middleware.js'; //응답 미들웨어 불러오기
 import noticesRouter from './routes/notices.js';
 import searchesRouter from './routes/searches.js';
 // 놀랍게도 user's'임 ㅋㅋㅋ -지환-
@@ -27,6 +27,9 @@ app.use(morgan('dev')); // 개발 환경용 로그 설정
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+
+
+
 app.use(
   session({
     secret: process.env.SESSION_KEY,
@@ -39,6 +42,7 @@ app.use(passport.session());
 
 // Passport 설정
 passportConfig();
+
 
 // 라우트 설정
 app.use('/api/users', userRouter);
@@ -71,6 +75,11 @@ app.get('/', async (req, res) => {
     return res.status(500).json(errorData);
   }
 });
+
+app.use('/notices',noticesRouter); //공지사항 라우트 설정 
+app.use('/searches', searchesRouter);
+app.use('/users', usersRouter);
+app.use('/onboarding', onboardingRouter);
 
 // 서버 시작
 app.listen(app.get('port'), async () => {
