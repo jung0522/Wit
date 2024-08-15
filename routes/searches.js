@@ -5,7 +5,7 @@ import { updatePopularSearches } from '../services/popularSearchService.js';
 import { countSearches, searchProducts, getPopularSearches } from '../models/searchesDao.js';
 import { successStatus } from '../config/successStatus.js';
 import { errResponse } from '../config/response.js';
-import {response} from '../config/response.js';
+import { response } from '../config/response.js';
 
 import { errStatus } from '../config/errorStatus.js';
 

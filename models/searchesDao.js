@@ -16,4 +16,9 @@ const getPopularSearches = async () => {
     return rows;
   };
 
-export {countSearches, searchProducts, getPopularSearches};
+const getRecentSearches = async (userId) => {
+  const [rows]= await pool.query(searchesQuery.getRecentSearchesQuery,[userId]);
+  return rows.map(row => row.keyword);
+};
+
+export {countSearches, searchProducts, getPopularSearches, getRecentSearches};

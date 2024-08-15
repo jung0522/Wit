@@ -16,4 +16,12 @@ const popularSearchesQuery =
    ORDER BY search_count DESC, last_searched_at DESC 
    LIMIT 10`;
 
-   export {countSearchesQuery, searchProductsQuery, popularSearchesQuery};
+const getRecentSearchesQuery = 
+`SELECT keyword FROM recent_searches 
+WHERE user_id = ? 
+ORDER BY searched_at DESC 
+LIMIT 10`;
+
+
+
+ export {countSearchesQuery, searchProductsQuery, popularSearchesQuery, getRecentSearchesQuery };
