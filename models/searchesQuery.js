@@ -24,4 +24,5 @@ LIMIT 10`;
 
 
 
+
  export {countSearchesQuery, searchProductsQuery, popularSearchesQuery, getRecentSearchesQuery };
