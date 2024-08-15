@@ -12,11 +12,11 @@ router.get('/:userId/recent-searches', async (req, res) => {
       `SELECT keyword FROM recent_searches 
        WHERE user_id = ? 
        ORDER BY searched_at DESC 
-       LIMIT 10`, 
+       LIMIT 10`,
       [userId]
     );
 
-    const keywords = rows.map(row => row.keyword);
+    const keywords = rows.map((row) => row.keyword);
 
     res.success('RECENT_SEARCHES_SUCCESS', keywords);
   } catch (err) {
@@ -25,5 +25,3 @@ router.get('/:userId/recent-searches', async (req, res) => {
 });
 
 export default router;
-
-
