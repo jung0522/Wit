@@ -7,6 +7,8 @@ const getAllNotices = async () => {
     return rows;
   };
 
+/* 실제로 필요한 기능은 여기까지 */ 
+
 // 공지사항 상세조회 
 const getNoticeById = async (noticeId) => {
     const [rows] = await pool.query(noticeQuery.getNoticeByIdQuery, [noticeId]);
