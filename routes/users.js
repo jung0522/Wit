@@ -16,7 +16,6 @@ router.get('/:userId/recent-searches', async (req, res) => {
   try {
     const keywords= await getRecentSearches(userId);
     res.send(response(successStatus.RECENT_SEARCHES_SUCCESS, keywords));
-
   } catch (err) {
     console.log(err);
     res.send(errResponse(errStatus.RECENT_SEARCHES_FAILED));
@@ -24,5 +23,3 @@ router.get('/:userId/recent-searches', async (req, res) => {
 });
 
 export default router;
-
-
