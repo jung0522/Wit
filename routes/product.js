@@ -6,7 +6,7 @@ import { NotFoundError, BadRequestError } from '../config/CustomErrors.js';
 const router = Router();
 
 // 제품 상세 정보 불러오기
-router.get('/products/:productId', async (req, res) => {
+router.get('/:productId', async (req, res) => {
   const { productId } = req.params;
 
   try {
@@ -26,20 +26,26 @@ router.get('/products/:productId', async (req, res) => {
     const averageRatingQuery = 'SELECT AVG(rating) as average_rating, COUNT(*) as review_count FROM review WHERE product_id = ?';
     const [reviewStats] = await pool.query(averageRatingQuery, [productId]);
 
-    // 최신 리뷰 이미지 8개 가져오기
-    const latestReviewImagesQuery = 'SELECT image FROM review WHERE product_id = ? AND image IS NOT NULL ORDER BY created_at DESC LIMIT 8';
-    const [latestReviewImagesResult] = await pool.query(latestReviewImagesQuery, [productId]);
-    const latestReviewImages = latestReviewImagesResult.flatMap(row => row.images.split(',')).slice(0, 8);
+   // 최신 리뷰 이미지 8개 가져오기
+   const latestReviewImagesQuery = 'SELECT image FROM review WHERE product_id = ? AND image IS NOT NULL ORDER BY created_at DESC LIMIT 8';
+   const [latestReviewImagesResult] = await pool.query(latestReviewImagesQuery, [productId]);
+   const latestReviewImages = latestReviewImagesResult.flatMap(row => {
+     return row.image ? row.image.split(',') : [];
+   }).slice(0, 8);
+
+ 
 
     // 도움이 돼요 많은 순 상위 3개 리뷰 가져오기
     const topReviewsQuery = `
-    SELECT r.id AS review_id, r.rating, r.content, r.created_at, u.username AS user_name, u.userprofile AS user_profile_image, r.review_helpful AS helpful_count, r.image AS images
+    SELECT r.id AS review_id, r.rating, r.content, r.created_at, u.username AS user_name, u.userprofile AS user_profile_image, r.image AS images,
+           (SELECT COUNT(*) FROM review_helpful rh WHERE rh.review_id = r.id) AS helpful_count
     FROM review r
     JOIN user u ON r.user_id = u.user_id
     WHERE r.product_id = ? AND r.image IS NOT NULL
-    ORDER BY r.review_helpful DESC
+    ORDER BY helpful_count DESC
     LIMIT 3
   `;
+  
   
    
     const [topReviews] = await pool.query(topReviewsQuery, [productId]);
@@ -64,7 +70,7 @@ router.get('/products/:productId', async (req, res) => {
 });
 
 // 제품 리뷰 목록 불러오기
-router.get('/products/:productId/reviews', async (req, res, next) => {
+router.get('/:productId/reviews', async (req, res, next) => {
   const { productId } = req.params;
   const { sort = 'latest', limit = 10 } = req.query;
 
@@ -122,7 +128,7 @@ router.get('/products/:productId/reviews', async (req, res, next) => {
 });
 
 // 리뷰 작성하기
-router.post('/products/:productId/reviews', async (req, res, next) => {
+router.post('/:productId/reviews', async (req, res, next) => {
   const { productId } = req.params;
   const { user_id, rating, content, images } = req.body;
 
@@ -141,11 +147,13 @@ router.post('/products/:productId/reviews', async (req, res, next) => {
     const newReviewId = result.insertId;
 
     const getReviewQuery = `
-      SELECT r.id AS review_id, r.rating, r.content, r.created_at, u.username AS user_name, u.userprofile AS user_profile_image, r.review_helpful AS helpful_count, r.image AS images
-      FROM review r
-      JOIN user u ON r.user_id = u.user_id
-      WHERE r.id = ?
-    `;
+    SELECT r.id AS review_id, r.rating, r.content, r.created_at, u.username AS user_name, u.userprofile AS user_profile_image, r.image AS images,
+           (SELECT COUNT(*) FROM review_helpful WHERE review_id = r.id) AS helpful_count
+    FROM review r
+    JOIN user u ON r.user_id = u.user_id
+    WHERE r.id = ?
+  `;
+  
     const [review] = await pool.query(getReviewQuery, [newReviewId]);
 
     const responseData = response({
@@ -161,7 +169,7 @@ router.post('/products/:productId/reviews', async (req, res, next) => {
 });
 
 // 리뷰 정렬 (베스트순/최신순)
-router.get('/products/:productId/reviews/sorted', async (req, res, next) => {
+router.get('/:productId/reviews/sorted', async (req, res, next) => {
   const { productId } = req.params;
   const { sort = 'latest', limit = 10 } = req.query;
 
@@ -192,7 +200,7 @@ router.get('/products/:productId/reviews/sorted', async (req, res, next) => {
 });
 
 // 리뷰 작성 페이지
-router.get('/products/:productId/reviews/new', async (req, res, next) => {
+router.get('/:productId/reviews/new', async (req, res, next) => {
   const { productId } = req.params;
 
   try {
@@ -225,7 +233,7 @@ router.get('/products/:productId/reviews/new', async (req, res, next) => {
 });
 
 // 상품 별점 불러오기 (별점별 리뷰 개수)
-router.get('/products/:productId/rating-stats', async (req, res, next) => {
+router.get('/:productId/rating-stats', async (req, res, next) => {
   const { productId } = req.params;
 
   try {
@@ -255,7 +263,7 @@ router.get('/products/:productId/rating-stats', async (req, res, next) => {
 });
 
 // 리뷰에 도움이 돼요 누르기
-router.post('/reviews/:reviewId/helpful', async (req, res) => {
+router.post('/:productId/reviews/:reviewId/helpful', async (req, res) => {
   const { reviewId } = req.params;
   const { userId } = req.body;
 
