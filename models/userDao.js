@@ -82,7 +82,6 @@ const getOneUserByPrivateUserKey = async (privateUserKey) => {
   const connection = await pool.getConnection();
   try {
     const [row] = await pool.query(findUserRealIdQuery, [privateUserKey]);
-    console.log(row);
     if (row.length === 0) {
       return null;
     }

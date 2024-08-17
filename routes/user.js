@@ -34,7 +34,23 @@ userRouter.get(
     const { user_id, accessToken, refreshToken } = req.authInfo;
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
-    res.send(response(successStatus.NAVER_LOGIN_SUCCESS, data));
+    const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
+    // 정적 페이지 설정
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>wit-login-success</title>
+        </head>
+        <body>
+          <script>
+            window.opener.postMessage(${JSON.stringify(dataObj)}, '*');
+          </script>
+        </body>
+      </html>
+    `);
   }
 );
 
@@ -50,8 +66,22 @@ userRouter.get(
     const { user_id, accessToken, refreshToken } = req.authInfo;
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
-
-    res.send(response(successStatus.KAKAO_LOGIN_SUCCESS, data));
+    const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>wit-login-success</title>
+        </head>
+        <body>
+          <script>
+            window.opener.postMessage(${JSON.stringify(dataObj)}, '*');
+          </script>
+        </body>
+      </html>
+    `);
   }
 );
 
