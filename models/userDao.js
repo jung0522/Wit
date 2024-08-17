@@ -64,9 +64,25 @@ const getOneUser = async (id) => {
     if (!id) {
       throw new Error(errStatus.USER_ID_IS_WRONG.message);
     }
-
     const [row] = await pool.query(findOneUserQuery, [id]);
 
+    if (row.length === 0) {
+      return null;
+    }
+
+    return row[0];
+  } catch (err) {
+    throw new Error(errStatus.USER_ID_IS_WRONG.message);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+const getOneUserByPrivateUserKey = async (privateUserKey) => {
+  const connection = await pool.getConnection();
+  try {
+    const [row] = await pool.query(findUserRealIdQuery, [privateUserKey]);
+    console.log(row);
     if (row.length === 0) {
       return null;
     }
@@ -129,4 +145,11 @@ const deleteUser = async (id) => {
   }
 };
 
-export { createUser, getAllUser, getOneUser, updateUser, deleteUser };
+export {
+  createUser,
+  getAllUser,
+  getOneUser,
+  getOneUserByPrivateUserKey,
+  updateUser,
+  deleteUser,
+};

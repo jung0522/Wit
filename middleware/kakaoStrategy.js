@@ -1,9 +1,8 @@
 import passport from 'passport';
 
 import { Strategy as KakaoStrategy } from 'passport-kakao';
-import { getOneUser, createUser } from '../models/userDao.js';
+import { getOneUserByPrivateUserKey, createUser } from '../models/userDao.js';
 import { errStatus } from '../config/errorStatus.js';
-import { generateUserId } from './generateUserId.js';
 import {
   generateToken,
   generateRefreshToken,
@@ -18,10 +17,11 @@ const kakaoStrategy = () => {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          const id = generateUserId(43);
+          const privateUserKey = profile._json.id;
           const rawUserData = profile._json.kakao_account;
           // 기존 사용자 조회
-          const exUser = await getOneUser(id);
+          const exUser = await getOneUserByPrivateUserKey(privateUserKey);
+
           if (exUser) {
             // 사용자 존재 시
             const accessToken = generateToken(exUser);
@@ -41,6 +41,8 @@ const kakaoStrategy = () => {
               birthday,
               gender,
             } = rawUserData;
+
+            const id = privateUserKey;
 
             const userData = {
               id,
