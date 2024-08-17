@@ -72,7 +72,7 @@ const getOneUser = async (id) => {
     }
 
     return row[0];
-  } catch (error) {
+  } catch (err) {
     throw new Error(errStatus.USER_ID_IS_WRONG.message);
   } finally {
     if (connection) connection.release();
