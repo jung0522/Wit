@@ -195,4 +195,12 @@ export const successStatus = {
     message: '인기 검색어 조회에 성공했습니다.',
   },
 
+  // 온보딩 성공
+  ONBOARDING_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'ONBOARDING_SUCCESS200',
+    message: '온보딩 정보가 성공적으로 저장되었습니다.',
+  }
+
 };

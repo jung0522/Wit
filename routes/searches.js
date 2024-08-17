@@ -5,7 +5,7 @@ import { updatePopularSearches } from '../services/popularSearchService.js';
 import { countSearches, searchProducts, getPopularSearches } from '../models/searchesDao.js';
 import { successStatus } from '../config/successStatus.js';
 import { errResponse } from '../config/response.js';
-import {response} from '../config/response.js';
+import { response } from '../config/response.js';
 
 import { errStatus } from '../config/errorStatus.js';
 
@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
         orderClause = 'ORDER BY product.won_price DESC';
         break;
       case 'popularity':
-        orderClause = 'ORDER BY reviews DESC';
+        orderClause = 'ORDER BY Mine.check_count DESC';
         break;
       case 'rating':
         orderClause = 'ORDER BY rating DESC';
@@ -54,11 +54,12 @@ router.get('/', async (req, res) => {
   }
 
   try {
+
     const total = await countSearches(whereClause, params);
     const products = await searchProducts(whereClause,orderClause,params,limit,offset);
 
     const result = {
-      total: total,
+      total: total, //총 검색 결과의 개수 
       page: parseInt(page),
       limit: parseInt(limit),
       products: products
