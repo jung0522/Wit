@@ -5,6 +5,7 @@ const countSearches = async (whereClause, params) => {
     const [rows] = await pool.query(searchesQuery.countSearchesQuery(whereClause), params);
     return rows[0].total;
   };
+
   
 const searchProducts = async (whereClause, orderClause, params, limit, offset) => {
     const [rows] = await pool.query(searchesQuery.searchProductsQuery(whereClause, orderClause), [...params, parseInt(limit), parseInt(offset)]);
@@ -16,4 +17,9 @@ const getPopularSearches = async () => {
     return rows;
   };
 
-export {countSearches, searchProducts, getPopularSearches};
+const getRecentSearches = async (userId) => {
+  const [rows]= await pool.query(searchesQuery.getRecentSearchesQuery,[userId]);
+  return rows.map(row => row.keyword);
+};
+
+export {countSearches, searchProducts, getPopularSearches, getRecentSearches};

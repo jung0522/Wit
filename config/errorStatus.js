@@ -198,4 +198,13 @@ export const errStatus = {
     code: 'POPULAR_SEARCHES500',
     message: '인기 검색어 조회에 실패했습니다.',
   },
+
+  // 온보딩 실패
+  ONBOARDING_FAILED: {
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+    isSuccess:false,
+    code: 'ONBOARDING_FAILED500',
+    message: '온보딩 저장에 실패했습니다.',
+  }
+
 };
