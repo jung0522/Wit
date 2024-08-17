@@ -85,7 +85,7 @@ userRouter.get(
   }
 );
 
-userRouter.post('/logout', authenticateJWT, logout);
+userRouter.get('/logout/:user_id', authenticateJWT, logout);
 
 // 회원 정보 모두 조회 (이미지 제외)
 userRouter.route('/').get(authenticateJWT, getAllUserController);

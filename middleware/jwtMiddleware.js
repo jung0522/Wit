@@ -81,7 +81,7 @@ const refreshAccessToken = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  const { user_id } = req.body;
+  const { user_id } = req.params;
   try {
     await redisClient.del(user_id);
     return res.send(response(successStatus.LOGOUT_SUCCESS));
