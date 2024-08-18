@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
         orderClause = 'ORDER BY product.won_price DESC';
         break;
       case 'popularity':
-        orderClause = 'ORDER BY reviews DESC';
+        orderClause = 'ORDER BY Mine.check_count DESC';
         break;
       case 'rating':
         orderClause = 'ORDER BY rating DESC';
@@ -57,6 +57,7 @@ router.get('/', async (req, res) => {
   }
 
   try {
+
     const total = await countSearches(whereClause, params);
     const products = await searchProducts(
       whereClause,
@@ -67,7 +68,7 @@ router.get('/', async (req, res) => {
     );
 
     const result = {
-      total: total,
+      total: total, //총 검색 결과의 개수 
       page: parseInt(page),
       limit: parseInt(limit),
       products: products,
