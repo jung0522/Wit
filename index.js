@@ -16,6 +16,11 @@ import usersRouter from './routes/users.js';
 import { userRouter } from './routes/user.js';
 import { passportConfig } from './config/passportConfig.js';
 
+import cartRouter from './routes/cartRouter.js'
+import mypageRouter from './routes/mypageRouter.js'
+import wishlistRouter from './routes/wishlistRouter.js'
+
+
 dotenv.config();
 
 const app = express();
@@ -47,6 +52,12 @@ app.use('/searches', searchesRouter);
 app.use('/onboarding', onboardingRouter);
 app.use('/users', usersRouter);
 
+app.use('/mypage', mypageRouter);
+app.use('/product', cartRouter);
+app.use('/wishlist', wishlistRouter);
+
+
+
 // 예시 라우트
 app.get('/', async (req, res) => {
   try {
@@ -67,6 +78,7 @@ app.get('/', async (req, res) => {
     return res.status(500).json(errorData);
   }
 });
+
 
 // 서버 시작
 app.listen(app.get('port'), async () => {

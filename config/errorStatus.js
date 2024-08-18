@@ -198,6 +198,18 @@ export const errStatus = {
     code: 'POPULAR_SEARCHES500',
     message: '인기 검색어 조회에 실패했습니다.',
   },
+  USER_NOT_FOUND: {
+    status: StatusCodes.NOT_FOUND,
+    isSuccess: false,
+    code: 'USER404',
+    message: '사용자를 찾을 수 없습니다.',
+  },
+  NO_CONTENT: {
+    status: StatusCodes.NO_CONTENT,
+    isSuccess: false,
+    code: 'WISHLIST204',
+    message: '장바구니에 상품이 없습니다.',
+  },
 
   // 온보딩 실패
   ONBOARDING_FAILED: {
