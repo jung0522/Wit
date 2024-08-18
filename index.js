@@ -8,11 +8,10 @@ import session from 'express-session';
 
 import { response, errResponse } from './config/response.js';
 import categoryRoutes from './routes/category.js';
-import productRoutes from './routes/product.js'; // 필요한 라우트만 가져옴
+import productRoutes from './routes/product.js'; 
 import { pool } from './config/db-config.js';
 import noticesRouter from './routes/notices.js';
 import searchesRouter from './routes/searches.js';
-// 놀랍게도 user's'임 ㅋㅋㅋ -지환-
 import usersRouter from './routes/users.js';
 import { userRouter } from './routes/user.js';
 import { passportConfig } from './config/passportConfig.js';
@@ -41,8 +40,8 @@ passportConfig();
 
 // 라우트 설정
 app.use('/api/users', userRouter);
-app.use('/api', categoryRoutes);
-app.use('/api', productRoutes);
+app.use('/categories', categoryRoutes);
+app.use('/products', productRoutes);
 app.use('/notices', noticesRouter);
 app.use('/searches', searchesRouter);
 app.use('/users', usersRouter);

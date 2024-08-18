@@ -6,7 +6,7 @@ import { BadRequestError } from '../config/CustomErrors.js';
 const router = Router();
 
 // 카테고리 불러오기 (대분류 및 소분류)
-router.get('/categories', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
     const mainCategoriesQuery = 'SELECT * FROM main_category';
     const subCategoriesQuery = 'SELECT * FROM sub_category';
