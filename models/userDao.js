@@ -1,6 +1,6 @@
 import { pool } from '../config/db-config.js';
 import { errStatus } from '../config/errorStatus.js';
-import { logout } from '../middleware/jwtMiddleware.js';
+import redisClient from '../config/redis-config.js';
 
 import {
   createUserQuery,
@@ -136,9 +136,11 @@ const deleteUser = async (id) => {
     if (!id) {
       throw new Error(errStatus.USER_ID_IS_WRONG.message);
     }
-    await logout();
+    // 로그아웃 로직
+    await redisClient.del(id);
     return row;
   } catch (err) {
+    console.log(err);
   } finally {
     if (connection) connection.release();
   }
