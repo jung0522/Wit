@@ -194,6 +194,19 @@ export const successStatus = {
     code: 'POPULAR_SEARCHES200',
     message: '인기 검색어 조회에 성공했습니다.',
   },
+    // Wishlist API
+    CART_ADD_SUCCESS: {
+      status: StatusCodes.CREATED,
+      isSuccess: true,
+      code: 'WISHLIST201',
+      message: '상품이 장바구니에 성공적으로 추가되었습니다.',
+    },
+    GET_WISHLIST_SUCCESS: {
+      status: StatusCodes.OK,
+      isSuccess: true,
+      code: 'WISHLIST200',
+      message: '장바구니 상품 목록을 성공적으로 조회했습니다.',
+    },
 
   // 온보딩 성공
   ONBOARDING_SUCCESS: {
