@@ -27,17 +27,28 @@ export const imageUploader = multer({
     contentType: multerS3.AUTO_CONTENT_TYPE, // Content-type, 자동으로 찾도록 설정
     key: (req, file, callback) => {
       // 파일명
-      const uploadDirectory = 'user-profile-image'; // 디렉토리 path 설정을 위해서
+      let uploadDirectory; // 디렉토리 path 설정을 위해서
       const extension = path.extname(file.originalname); // 파일 이름 얻어오기
-      const { user_id } = req.params;
+      const { user_id, reviewId } = req.params;
+
+      if (user_id) {
+        uploadDirectory = 'user-profile-image';
+      }
+      if (reviewId) {
+        uploadDirectory = 'review_image';
+      }
       // 여기서 uuid 써서 url 만들면 이미지 get 요청시 여기서 만든 uuid를 어떻게 url로 전달할까?
       // const uuid = createUUID();
       // extension 확인을 위한 코드 (확장자 검사용)
       if (!allowedExtensions.includes(extension)) {
         return callback(new BaseError(errStatus.WRONG_EXTENSION));
       }
-
-      callback(null, `${uploadDirectory}/${user_id}`);
+      if (user_id) {
+        callback(null, `${uploadDirectory}/${user_id}`);
+      }
+      if (reviewId) {
+        callback(null, `${uploadDirectory}/${reviewId}`);
+      }
     },
     acl: 'public-read-write', // 파일 액세스 권한
   }),

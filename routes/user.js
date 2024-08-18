@@ -35,6 +35,7 @@ userRouter.get(
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
     const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
+    // 헤더로 전송하는 로직도 있다
     // 정적 페이지 설정
     res.send(`
       <!DOCTYPE html>
@@ -85,27 +86,27 @@ userRouter.get(
   }
 );
 
-userRouter.get('/logout/:user_id', authenticateJWT, logout);
+userRouter.get('/logout/:user_id', logout);
 
 // 회원 정보 모두 조회 (이미지 제외)
-userRouter.route('/').get(authenticateJWT, getAllUserController);
+userRouter.route('/').get(getAllUserController);
 
 // 회원 탈퇴
-userRouter.delete('/withdraw/:user_id', authenticateJWT, deleteUserController);
+userRouter.delete('/withdraw/:user_id', deleteUserController);
 
 userRouter.post('/refresh_token', refreshAccessToken);
 
 userRouter
   .route('/:user_id')
   // 회원 정보 조회 (이미지 제외)
-  .get(authenticateJWT, getOneUserController)
+  .get(getOneUserController)
   // 회원 정보 수정 (이미지 제외)
-  .post(authenticateJWT, updateUserController);
+  .post(updateUserController);
 
 // 회원 프로필 이미지 관련 라우터
 userRouter
   .route('/profile_image/:user_id')
   // 회원 프로필 이미지 조회
-  .get(authenticateJWT, getProfileImage)
+  .get(getProfileImage)
   // 회원 프로필 이미지 수정, 업로드
-  .post(authenticateJWT, updateProfileImage);
+  .post(updateProfileImage);

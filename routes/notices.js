@@ -1,6 +1,11 @@
 import express from 'express';
-import { pool } from '../config/db-config.js';
-import { createNotice, deleteNotice, getAllNotices, getNoticeById, updateNotice } from '../models/noticeDao.js';
+import {
+  createNotice,
+  deleteNotice,
+  getAllNotices,
+  getNoticeById,
+  updateNotice,
+} from '../models/noticeDao.js';
 import { successStatus } from '../config/successStatus.js';
 import { errResponse } from '../config/response.js';
 import { errStatus } from '../config/errorStatus.js';
@@ -8,24 +13,23 @@ import { response } from '../config/response.js';
 
 const router = express.Router();
 
-// 공지사항 목록 조회 
+// 공지사항 목록 조회
 router.get('/', async (req, res) => {
   try {
     const notices = await getAllNotices();
-    res.send(response(successStatus.GET_ALL_POSTS_SUCCESS,notices));
+    res.send(response(successStatus.GET_ALL_POSTS_SUCCESS, notices));
   } catch (err) {
     console.log(err);
     res.send(errResponse(errStatus.INTERNAL_SERVER_ERROR));
-   
   }
 });
 
 //공지사항 상세 조회
-router.get('/:noticeid', async (req,res) => {
+router.get('/:noticeid', async (req, res) => {
   const noticeId = req.params.noticeid;
 
   try {
-   const notice = await getNoticeById(noticeId);
+    const notice = await getNoticeById(noticeId);
 
     if (!notice) {
       return res.send(errResponse(errStatus.POST_NOT_FOUND));
@@ -34,7 +38,6 @@ router.get('/:noticeid', async (req,res) => {
   } catch (err) {
     res.send(errResponse(errStatus.INTERNAL_SERVER_ERROR));
   }
-    
 });
 
 // 공지사항 새 글 작성
@@ -46,7 +49,7 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    const noticeId = await createNotice(title,content);
+    const noticeId = await createNotice(title, content);
     const notice = await getNoticeById(noticeId);
 
     res.send(response(successStatus.MAKE_POST_SUCCESS, notice));
@@ -66,7 +69,7 @@ router.put('/:noticeid', async (req, res) => {
   }
 
   try {
-    const affectedRows = await updateNotice(noticeId,title,content);
+    const affectedRows = await updateNotice(noticeId, title, content);
 
     if (affectedRows === 0) {
       return res.send(errResponse(errStatus.POST_NOT_FOUND));
@@ -85,7 +88,6 @@ router.delete('/:noticeid', async (req, res) => {
   const noticeId = req.params.noticeid;
 
   try {
-    
     const affectedRows = await deleteNotice(noticeId);
 
     if (affectedRows === 0) {
