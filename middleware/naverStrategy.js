@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Strategy as NaverStrategy } from 'passport-naver-v2';
 
-import { getOneUser, createUser } from '../models/userDao.js';
+import { getOneUserByPrivateUserKey, createUser } from '../models/userDao.js';
 import { errStatus } from '../config/errorStatus.js';
 import {
   generateToken,
@@ -23,7 +23,8 @@ const naverStrategy = () => {
           let userData = profile._json.response;
           const { id } = userData;
           // 기존 사용자 조회
-          const exUser = await getOneUser(id);
+          const privateUserKey = id;
+          const exUser = await getOneUserByPrivateUserKey(privateUserKey);
           if (exUser) {
             // 사용자 존재 시
             const accessToken = generateToken(exUser);

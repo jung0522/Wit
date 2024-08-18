@@ -1,6 +1,6 @@
 import { pool } from '../config/db-config.js';
 import { errStatus } from '../config/errorStatus.js';
-import { logout } from '../middleware/jwtMiddleware.js';
+import redisClient from '../config/redis-config.js';
 
 import {
   createUserQuery,
@@ -64,7 +64,6 @@ const getOneUser = async (id) => {
     if (!id) {
       throw new Error(errStatus.USER_ID_IS_WRONG.message);
     }
-
     const [row] = await pool.query(findOneUserQuery, [id]);
 
     if (row.length === 0) {
@@ -72,7 +71,23 @@ const getOneUser = async (id) => {
     }
 
     return row[0];
-  } catch (error) {
+  } catch (err) {
+    throw new Error(errStatus.USER_ID_IS_WRONG.message);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+const getOneUserByPrivateUserKey = async (privateUserKey) => {
+  const connection = await pool.getConnection();
+  try {
+    const [row] = await pool.query(findUserRealIdQuery, [privateUserKey]);
+    if (row.length === 0) {
+      return null;
+    }
+
+    return row[0];
+  } catch (err) {
     throw new Error(errStatus.USER_ID_IS_WRONG.message);
   } finally {
     if (connection) connection.release();
@@ -121,12 +136,21 @@ const deleteUser = async (id) => {
     if (!id) {
       throw new Error(errStatus.USER_ID_IS_WRONG.message);
     }
-    await logout();
+    // 로그아웃 로직
+    await redisClient.del(id);
     return row;
   } catch (err) {
+    console.log(err);
   } finally {
     if (connection) connection.release();
   }
 };
 
-export { createUser, getAllUser, getOneUser, updateUser, deleteUser };
+export {
+  createUser,
+  getAllUser,
+  getOneUser,
+  getOneUserByPrivateUserKey,
+  updateUser,
+  deleteUser,
+};

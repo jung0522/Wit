@@ -12,7 +12,6 @@ import { imageUploader } from '../middleware/imageUploader.js';
 const getAllUserController = async (req, res) => {
   try {
     const data = await getAllUser();
-    console.log(data);
     res.send(response(successStatus.GET_ALL_USERS_SUCCESS, data));
   } catch (err) {
     res.send(errResponse(errStatus.INTERNAL_SERVER_ERROR));
@@ -23,9 +22,13 @@ const getOneUserController = async (req, res) => {
   try {
     const { user_id } = req.params;
     const data = await getOneUser(user_id);
-    res.send(response(successStatus.GET_ONE_USER_SUCCESS, data));
+    // 회원없을시 오류 전달
+    if (data === null) {
+      return res.send(errResponse(errStatus.USER_ID_IS_WRONG));
+    }
+    return res.send(response(successStatus.GET_ONE_USER_SUCCESS, data));
   } catch (err) {
-    res.send(errResponse(errStatus.INVALID_CREDENTIALS));
+    return res.send(errResponse(errStatus.INVALID_CREDENTIALS));
   }
 };
 

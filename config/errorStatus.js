@@ -50,12 +50,21 @@ export const errStatus = {
     code: 'MEMBER002',
     message: '이미 가입하였습니다.',
   },
+
   USER_ID_IS_WRONG: {
     status: StatusCodes.BAD_REQUEST,
     isSuccess: false,
     code: 'COMMON005',
     message: '유저 id가 잘못됐습니다.',
   },
+
+  USER_PRIVATE_KEY_IS_WRONG: {
+    status: StatusCodes.BAD_REQUEST,
+    isSuccess: false,
+    code: 'COMMON005',
+    message: '유저 private key가 잘못됐습니다.',
+  },
+
   INVALID_USER_DATA: {
     status: StatusCodes.BAD_REQUEST,
     isSuccess: false,
@@ -174,7 +183,7 @@ export const errStatus = {
     code: 'SEARCHES500',
     message: '기념품 검색에 실패했습니다.',
   },
-  // 유저 최근 검색어 조회 실패 
+  // 유저 최근 검색어 조회 실패
   RECENT_SEARCHES_FAILED: {
     status: StatusCodes.INTERNAL_SERVER_ERROR,
     isSuccess: false,
@@ -193,9 +202,8 @@ export const errStatus = {
   // 온보딩 실패
   ONBOARDING_FAILED: {
     status: StatusCodes.INTERNAL_SERVER_ERROR,
-    isSuccess:false,
+    isSuccess: false,
     code: 'ONBOARDING_FAILED500',
     message: '온보딩 저장에 실패했습니다.',
-  }
-
+  },
 };

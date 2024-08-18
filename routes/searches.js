@@ -1,19 +1,22 @@
 import express from 'express';
-import { pool } from '../config/db-config.js';
 import { saveRecentSearch } from '../services/recentSearchService.js';
 import { updatePopularSearches } from '../services/popularSearchService.js';
-import { countSearches, searchProducts, getPopularSearches } from '../models/searchesDao.js';
+import {
+  countSearches,
+  searchProducts,
+  getPopularSearches,
+} from '../models/searchesDao.js';
 import { successStatus } from '../config/successStatus.js';
 import { errResponse } from '../config/response.js';
 import { response } from '../config/response.js';
 
 import { errStatus } from '../config/errorStatus.js';
 
-const router = express.Router(); 
+const router = express.Router();
 
 // 기념품 키워드 검색 기능
 router.get('/', async (req, res) => {
-  const { query, category, sort, page = 1, limit = 10 , userId } = req.query; // userId를 쿼리 파라미터로 받아야함 
+  const { query, category, sort, page = 1, limit = 10, userId } = req.query; // userId를 쿼리 파라미터로 받아야함
   const offset = (page - 1) * limit;
 
   let whereClause = '';
@@ -56,13 +59,19 @@ router.get('/', async (req, res) => {
   try {
 
     const total = await countSearches(whereClause, params);
-    const products = await searchProducts(whereClause,orderClause,params,limit,offset);
+    const products = await searchProducts(
+      whereClause,
+      orderClause,
+      params,
+      limit,
+      offset
+    );
 
     const result = {
       total: total, //총 검색 결과의 개수 
       page: parseInt(page),
       limit: parseInt(limit),
-      products: products
+      products: products,
     };
 
     res.send(response(successStatus.PRODUCTS_SEARCH_SUCCESS, result));
@@ -76,8 +85,6 @@ router.get('/', async (req, res) => {
     if (query && userId) {
       await saveRecentSearch(userId, query);
     }
-
-
   } catch (err) {
     console.log(err);
     res.send(errResponse(errStatus.PRODUCTS_SEARCH_FAILED));
@@ -87,7 +94,7 @@ router.get('/', async (req, res) => {
 // 인기 검색어 조회 기능 (상위 10개)
 router.get('/popular', async (req, res) => {
   try {
-    const rows= await getPopularSearches();
+    const rows = await getPopularSearches();
     const keywords = rows.map((row, index) => `${index + 1}위: ${row.keyword}`);
 
     res.send(response(successStatus.POPULAR_SEARCHES_SUCCESS, keywords));
@@ -96,8 +103,4 @@ router.get('/popular', async (req, res) => {
   }
 });
 
-
-
 export default router;
-
-
