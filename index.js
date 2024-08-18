@@ -12,7 +12,6 @@ import productRoutes from './routes/product.js';
 import { pool } from './config/db-config.js';
 import noticesRouter from './routes/notices.js';
 import searchesRouter from './routes/searches.js';
-// 놀랍게도 user's'임 ㅋㅋㅋ -지환-
 import usersRouter from './routes/users.js';
 import { userRouter } from './routes/user.js';
 import { passportConfig } from './config/passportConfig.js';
