@@ -44,6 +44,7 @@ app.use('/categories', categoryRoutes);
 app.use('/products', productRoutes);
 app.use('/notices', noticesRouter);
 app.use('/searches', searchesRouter);
+app.use('/onboarding', onboardingRouter);
 app.use('/users', usersRouter);
 
 // 예시 라우트
@@ -66,11 +67,6 @@ app.get('/', async (req, res) => {
     return res.status(500).json(errorData);
   }
 });
-
-app.use('/notices', noticesRouter); //공지사항 라우트 설정
-app.use('/searches', searchesRouter);
-app.use('/users', usersRouter);
-app.use('/onboarding', onboardingRouter);
 
 // 서버 시작
 app.listen(app.get('port'), async () => {

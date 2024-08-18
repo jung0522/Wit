@@ -35,6 +35,7 @@ userRouter.get(
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
     const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
+    // 헤더로 전송하는 로직도 있다
     // 정적 페이지 설정
     res.send(`
       <!DOCTYPE html>
