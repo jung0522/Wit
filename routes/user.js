@@ -13,9 +13,11 @@ import {
 } from '../controller/userController.js';
 
 import {
-  authenticateJWT,
+  decodeAccessToken,
   logout,
   refreshAccessToken,
+  verifyAccessToken,
+  verifyRefreshToken,
 } from '../middleware/jwtMiddleware.js';
 
 export const userRouter = express.Router();
@@ -35,8 +37,6 @@ userRouter.get(
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
     const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
-    // 헤더로 전송하는 로직도 있다
-    // 정적 페이지 설정
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
@@ -68,7 +68,6 @@ userRouter.get(
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
     const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
-    // window.opener.postMessage(${JSON.stringify(dataObj)}, '*');
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
@@ -87,32 +86,36 @@ userRouter.get(
   }
 );
 
-userRouter.get('/logout/:user_id', logout);
+userRouter.get('/logout', decodeAccessToken, logout);
 
 // 회원 정보 모두 조회 (이미지 제외)
-userRouter.route('/').get(getAllUserController);
+userRouter.route('/all').get(decodeAccessToken, getAllUserController);
 
 // 회원 탈퇴
-userRouter.delete('/withdraw/:user_id', deleteUserController);
+userRouter.delete('/withdraw', decodeAccessToken, deleteUserController);
 
 userRouter.post('/refresh_token', refreshAccessToken);
 
 userRouter
-  .route('/:user_id')
+  .route('/')
   // 회원 정보 조회 (이미지 제외)
-  .get(getOneUserController)
+  .get(decodeAccessToken, getOneUserController)
   // 회원 정보 수정 (이미지 제외)
-  .post(updateUserController);
+  .post(decodeAccessToken, updateUserController);
 
 // 회원 프로필 이미지 관련 라우터
 userRouter
-  .route('/profile_image/:user_id')
+  .route('/profile_image')
   // 회원 프로필 이미지 조회
-  .get(getProfileImage)
+  .get(decodeAccessToken, getProfileImage)
   // 회원 프로필 이미지 수정, 업로드
-  .post(updateProfileImage);
+  .post(decodeAccessToken, updateProfileImage);
 
-// 개인 최근 검색어 확인
+userRouter.post('/check_access', verifyAccessToken);
+
+userRouter.post('/check_refresh', verifyRefreshToken);
+
+// 개인 최근 검색어 확인 하경님이 수정해주세요
 userRouter.get('/:userId/recent-searches', async (req, res) => {
   const { userId } = req.params;
 

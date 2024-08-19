@@ -7,7 +7,7 @@ import redisClient from '../config/redis-config.js';
 dotenv.config();
 
 const generateToken = (user) => {
-  let userId = String(user.id);
+  let userId = String(user.user_id);
   const accessToken = jwt.sign(
     { id: userId },
     process.env.JWT_SECRET_KEY,
@@ -16,43 +16,26 @@ const generateToken = (user) => {
       expiresIn: '1h',
     }
   );
+  console.log('accessToken: ', accessToken);
   return accessToken;
 };
 
 const generateRefreshToken = (user) => {
-  let userId = String(user.id);
-  if (!userId) {
-    userId = user.id;
-  }
-
+  let userId = String(user.user_id);
+  console.log('refresh userId', userId);
+  console.log({ id: userId });
   const refreshToken = jwt.sign(
-    { id: userId },
+    { id: userId }, // jwt.sign의 첫 번째 인자로 payload 전달
     process.env.JWT_REFRESH_SECRET_KEY,
-    // refresh 토큰의 유효 기간 설정
     {
       expiresIn: '14d',
     }
   );
+
   // redis에 14일 만료기한으로 저장
   redisClient.SETEX(userId, 1209600, refreshToken);
-
+  console.log('refresh: ', refreshToken);
   return refreshToken;
-};
-
-const authenticateJWT = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
-    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, verifiedToken) => {
-      if (err) {
-        return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
-      }
-      req.verifiedToken = verifiedToken;
-      next();
-    });
-  } else {
-    return res.send(errResponse(errStatus.AUTHENTICATION_FAILED));
-  }
 };
 
 const refreshAccessToken = async (req, res) => {
@@ -81,7 +64,7 @@ const refreshAccessToken = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  const { user_id } = req.params;
+  const { user_id } = req;
   try {
     await redisClient.del(user_id);
     return res.send(response(successStatus.LOGOUT_SUCCESS));
@@ -90,10 +73,70 @@ const logout = async (req, res) => {
   }
 };
 
+const decodeAccessToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+      req.user_id = decodedToken.id; // 유저 정보를 req 객체에 저장
+      next(); // 다음 middleware로 넘어감
+    } catch (err) {
+      return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
+    }
+  } else {
+    return res.send(errResponse(errStatus.AUTHENTICATION_FAILED));
+  }
+};
+
+const verifyAccessToken = (req, res) => {
+  const { tokenData } = req.body;
+  if (!tokenData) {
+    return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
+  }
+
+  try {
+    const decoded = jwt.verify(tokenData, process.env.JWT_SECRET_KEY);
+    const { id, iat, exp } = decoded;
+    const data = {
+      user_id: id,
+      createTime: new Date(iat * 1000),
+      expireTime: new Date(exp * 1000),
+    };
+    return res.send(response(successStatus.ACCESS_TOKEN_IS_VERITY, data));
+  } catch (err) {
+    console.log(err);
+    return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
+  }
+};
+
+const verifyRefreshToken = (req, res) => {
+  const { tokenData } = req.body;
+  if (!tokenData) {
+    return res.send(errResponse(errStatus.INVALID_REFRESH_TOKEN));
+  }
+
+  try {
+    const decoded = jwt.verify(tokenData, process.env.JWT_REFRESH_SECRET_KEY);
+    const { id, iat, exp } = decoded;
+    const data = {
+      user_id: id,
+      createTime: new Date(iat * 1000),
+      expireTime: new Date(exp * 1000),
+    };
+    return res.send(response(successStatus.REFRESH_TOKEN_IS_VERITY, data));
+  } catch (err) {
+    console.log(err);
+    return res.send(errResponse(errStatus.INVALID_REFRESH_TOKEN));
+  }
+};
+
 export {
-  authenticateJWT,
   generateToken,
   generateRefreshToken,
   refreshAccessToken,
   logout,
+  decodeAccessToken,
+  verifyAccessToken,
+  verifyRefreshToken,
 };
