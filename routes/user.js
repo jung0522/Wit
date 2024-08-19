@@ -47,7 +47,7 @@ userRouter.get(
         </head>
         <body>
           <script>
-            const data = ${JSON.stringify(dataObj)};
+            window.opener.postMessage(${JSON.stringify(dataObj)}, '*');
           </script>
         </body>
       </html>
@@ -79,7 +79,7 @@ userRouter.get(
         </head>
         <body>
           <script>
-            <div>${JSON.stringify(dataObj)}</div>
+            window.opener.postMessage(${JSON.stringify(dataObj)}, '*');
           </script>
         </body>
       </html>
