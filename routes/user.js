@@ -16,6 +16,8 @@ import {
   decodeAccessToken,
   logout,
   refreshAccessToken,
+  verifyAccessToken,
+  verifyRefreshToken,
 } from '../middleware/jwtMiddleware.js';
 
 export const userRouter = express.Router();
@@ -108,6 +110,10 @@ userRouter
   .get(decodeAccessToken, getProfileImage)
   // 회원 프로필 이미지 수정, 업로드
   .post(decodeAccessToken, updateProfileImage);
+
+userRouter.post('/check_access', verifyAccessToken);
+
+userRouter.post('/check_refresh', verifyRefreshToken);
 
 // 개인 최근 검색어 확인 하경님이 수정해주세요
 userRouter.get('/:userId/recent-searches', async (req, res) => {

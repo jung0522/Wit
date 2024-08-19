@@ -80,7 +80,6 @@ const decodeAccessToken = (req, res, next) => {
     try {
       const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
       req.user_id = decodedToken.id; // 유저 정보를 req 객체에 저장
-      console.log(req.user_id);
       next(); // 다음 middleware로 넘어감
     } catch (err) {
       return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
@@ -90,10 +89,54 @@ const decodeAccessToken = (req, res, next) => {
   }
 };
 
+const verifyAccessToken = (req, res) => {
+  const { tokenData } = req.body;
+  if (!tokenData) {
+    return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
+  }
+
+  try {
+    const decoded = jwt.verify(tokenData, process.env.JWT_SECRET_KEY);
+    const { id, iat, exp } = decoded;
+    const data = {
+      user_id: id,
+      createTime: new Date(iat * 1000),
+      expireTime: new Date(exp * 1000),
+    };
+    return res.send(response(successStatus.ACCESS_TOKEN_IS_VERITY, data));
+  } catch (err) {
+    console.log(err);
+    return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
+  }
+};
+
+const verifyRefreshToken = (req, res) => {
+  const { tokenData } = req.body;
+  if (!tokenData) {
+    return res.send(errResponse(errStatus.INVALID_REFRESH_TOKEN));
+  }
+
+  try {
+    const decoded = jwt.verify(tokenData, process.env.JWT_REFRESH_SECRET_KEY);
+    const { id, iat, exp } = decoded;
+    const data = {
+      user_id: id,
+      createTime: new Date(iat * 1000),
+      expireTime: new Date(exp * 1000),
+    };
+    return res.send(response(successStatus.REFRESH_TOKEN_IS_VERITY, data));
+  } catch (err) {
+    console.log(err);
+    return res.send(errResponse(errStatus.INVALID_REFRESH_TOKEN));
+  }
+};
+
 export {
   generateToken,
   generateRefreshToken,
   refreshAccessToken,
   logout,
   decodeAccessToken,
+  verifyAccessToken,
+  verifyRefreshToken,
 };
