@@ -5,7 +5,7 @@ import cors from 'cors';
 import onboardingRouter from './routes/onboarding.js';
 import passport from 'passport';
 import session from 'express-session';
-
+import morgan from 'morgan';
 import { response, errResponse } from './config/response.js';
 import categoryRoutes from './routes/category.js';
 import productRoutes from './routes/product.js';
@@ -33,6 +33,8 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+// 로그 설정
+app.use(morgan('combined'));
 
 // Passport 설정
 passportConfig();
