@@ -214,6 +214,13 @@ export const successStatus = {
     isSuccess: true,
     code: 'ONBOARDING_SUCCESS200',
     message: '온보딩 정보가 성공적으로 저장되었습니다.',
-  }
+  },
+    // home 성공
+  HOME_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'HOME_SUCCESS200',
+    message: '홈 정보를 성공적으로 조회했습니다.',
+  },
 
 };
