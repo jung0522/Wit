@@ -29,7 +29,8 @@ export const imageUploader = multer({
       // 파일명
       let uploadDirectory; // 디렉토리 path 설정을 위해서
       const extension = path.extname(file.originalname); // 파일 이름 얻어오기
-      const { user_id, reviewId } = req.params;
+      const { user_id } = req;
+      const { reviewId } = req.params;
 
       if (user_id) {
         uploadDirectory = 'user-profile-image';

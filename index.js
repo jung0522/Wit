@@ -15,9 +15,9 @@ import searchesRouter from './routes/searches.js';
 import { userRouter } from './routes/user.js';
 import { passportConfig } from './config/passportConfig.js';
 
-import cartRouter from './routes/cartRouter.js'
-import mypageRouter from './routes/mypageRouter.js'
-import wishlistRouter from './routes/wishlistRouter.js'
+import cartRouter from './routes/cartRouter.js';
+import mypageRouter from './routes/mypageRouter.js';
+import wishlistRouter from './routes/wishlistRouter.js';
 import homeRouter from './routes/homeRouter.js';
 
 dotenv.config();
@@ -55,8 +55,7 @@ app.use('/onboarding', onboardingRouter);
 app.use('/mypage', mypageRouter);
 app.use('/product', cartRouter);
 app.use('/wishlist', wishlistRouter);
-app.use('/home',homeRouter);
-
+app.use('/home', homeRouter);
 
 // 예시 라우트
 app.get('/', async (req, res) => {
@@ -78,7 +77,6 @@ app.get('/', async (req, res) => {
     return res.status(500).json(errorData);
   }
 });
-
 
 // 서버 시작
 app.listen(app.get('port'), async () => {
