@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import { response } from '../config/response.js';
 import { successStatus } from '../config/successStatus.js';
-
+import { getRecentSearches } from '../models/searchesDao.js';
 import {
   getAllUserController,
   getOneUserController,
@@ -68,6 +68,7 @@ userRouter.get(
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
     const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
+    // window.opener.postMessage(${JSON.stringify(dataObj)}, '*');
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
@@ -110,3 +111,16 @@ userRouter
   .get(getProfileImage)
   // 회원 프로필 이미지 수정, 업로드
   .post(updateProfileImage);
+
+// 개인 최근 검색어 확인
+userRouter.get('/:userId/recent-searches', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const keywords = await getRecentSearches(userId);
+    res.send(response(successStatus.RECENT_SEARCHES_SUCCESS, keywords));
+  } catch (err) {
+    console.log(err);
+    res.send(errResponse(errStatus.RECENT_SEARCHES_FAILED));
+  }
+});
