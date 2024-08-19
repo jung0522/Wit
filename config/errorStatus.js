@@ -84,7 +84,19 @@ export const errStatus = {
     code: 'USER 400',
     message: '유저 프로필 이미지 조회에 실패했습니다.',
   },
-
+  ONBOARDING_BAD_REQUEST: {
+    status: StatusCodes.BAD_REQUEST,
+    isSuccess: false,
+    code: 'ONBOARDING400',
+    message: '필수 필드가 누락되었거나 잘못된 형식입니다.',
+  },
+  ONBOARDING_LIMIT_EXCEEDED: {
+    status: StatusCodes.BAD_REQUEST,
+    isSuccess: false,
+    code: 'ONBOARDING_LIMIT400',
+    message:
+      '여행 유형, 성향 유형은 최대 3개까지, 기념품은 최대 2개까지 선택할 수 있습니다.',
+  },
   // 로그인 에러
   INVALID_CREDENTIALS_MAKE_ACCOUNT: {
     status: StatusCodes.UNAUTHORIZED,
