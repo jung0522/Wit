@@ -47,7 +47,7 @@ userRouter.get(
         </head>
         <body>
           <script>
-            window.opener.postMessage(${JSON.stringify(dataObj)}, '*');
+            const data = ${JSON.stringify(dataObj)};
           </script>
         </body>
       </html>
@@ -68,6 +68,7 @@ userRouter.get(
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
     const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
+    // window.opener.postMessage(${JSON.stringify(dataObj)}, '*');
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
@@ -78,7 +79,7 @@ userRouter.get(
         </head>
         <body>
           <script>
-            window.opener.postMessage(${JSON.stringify(dataObj)}, '*');
+            <div>${JSON.stringify(dataObj)}</div>
           </script>
         </body>
       </html>

@@ -13,7 +13,7 @@ const kakaoStrategy = () => {
     new KakaoStrategy(
       {
         clientID: process.env.KAKAO_RESTAPI_KEY,
-        callbackURL: '/api/users/kakao_signin/callback',
+        callbackURL: '/user/kakao_signin/callback',
       },
       async (accessToken, refreshToken, profile, done) => {
         try {

@@ -12,7 +12,6 @@ import productRoutes from './routes/product.js';
 import { pool } from './config/db-config.js';
 import noticesRouter from './routes/notices.js';
 import searchesRouter from './routes/searches.js';
-import usersRouter from './routes/users.js';
 import { userRouter } from './routes/user.js';
 import { passportConfig } from './config/passportConfig.js';
 
@@ -45,7 +44,6 @@ app.use('/products', productRoutes);
 app.use('/notices', noticesRouter);
 app.use('/searches', searchesRouter);
 app.use('/onboarding', onboardingRouter);
-app.use('/users', usersRouter);
 
 // 예시 라우트
 app.get('/', async (req, res) => {
