@@ -92,7 +92,7 @@ userRouter.get('/logout', decodeAccessToken, logout);
 userRouter.route('/all').get(decodeAccessToken, getAllUserController);
 
 // 회원 탈퇴
-userRouter.delete('/withdraw', decodeAccessToken, deleteUserController);
+userRouter.delete('/withdraw', deleteUserController);
 
 userRouter.post('/refresh_token', refreshAccessToken);
 
