@@ -11,7 +11,6 @@ import { imageUploader } from '../middleware/imageUploader.js';
 
 const getAllUserController = async (req, res) => {
   try {
-    console.log(req.user_id);
     const data = await getAllUser();
     res.send(response(successStatus.GET_ALL_USERS_SUCCESS, data));
   } catch (err) {
@@ -22,7 +21,6 @@ const getAllUserController = async (req, res) => {
 const getOneUserController = async (req, res) => {
   try {
     const { user_id } = req;
-    console.log(user_id);
     const data = await getOneUser(user_id);
     // 회원없을시 오류 전달
     if (data === null) {
