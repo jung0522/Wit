@@ -132,8 +132,12 @@ export const getProductsInCart = async (userId, cursor = 0, limit = 10) => {
         const cartId = cart[0].id;
 
         // 2단계: 장바구니의 제품과 해당 제품의 평균 평점, 리뷰 개수, heart 상태 조회
-        const [products] = await pool.query(
-            `SELECT p.id AS product_id, p.name, p.en_price, p.won_price, p.image,
+        let query;
+        let params;
+
+        if (cursor === 0) {
+            query = `
+                SELECT p.id AS product_id, p.name, p.en_price, p.won_price, p.image,
                     COALESCE(AVG(r.rating), 0) AS average_rating,
                     COALESCE(COUNT(r.id), 0) AS review_count,
                     EXISTS (
@@ -141,17 +145,39 @@ export const getProductsInCart = async (userId, cursor = 0, limit = 10) => {
                         FROM user_heart uh 
                         WHERE uh.user_id = ? AND uh.product_id = p.id
                     ) AS heart
-             FROM product p
-             JOIN cart_folder_product cfp ON p.id = cfp.product_id
-             JOIN folder f ON cfp.folder_id = f.id
-             LEFT JOIN review r ON p.id = r.product_id
-             WHERE f.cart_id = ?
-             AND p.id > ?  -- cursor 값 이후의 상품만 가져옴
-             GROUP BY p.id
-             ORDER BY p.id
-             LIMIT ?`,  // limit 만큼만 결과를 가져옴
-            [userId, cartId, cursor, limit]
-        );
+                FROM product p
+                JOIN cart_folder_product cfp ON p.id = cfp.product_id
+                JOIN folder f ON cfp.folder_id = f.id
+                LEFT JOIN review r ON p.id = r.product_id
+                WHERE f.cart_id = ?
+                AND p.id > ?
+                GROUP BY p.id
+                ORDER BY p.id DESC
+                LIMIT ?`;
+            params = [userId, cartId, cursor, limit];
+        } else {
+            query = `
+                SELECT p.id AS product_id, p.name, p.en_price, p.won_price, p.image,
+                    COALESCE(AVG(r.rating), 0) AS average_rating,
+                    COALESCE(COUNT(r.id), 0) AS review_count,
+                    EXISTS (
+                        SELECT 1 
+                        FROM user_heart uh 
+                        WHERE uh.user_id = ? AND uh.product_id = p.id
+                    ) AS heart
+                FROM product p
+                JOIN cart_folder_product cfp ON p.id = cfp.product_id
+                JOIN folder f ON cfp.folder_id = f.id
+                LEFT JOIN review r ON p.id = r.product_id
+                WHERE f.cart_id = ?
+                AND p.id < ?
+                GROUP BY p.id
+                ORDER BY p.id DESC
+                LIMIT ?`;
+            params = [userId, cartId, cursor, limit];
+        }
+
+        const [products] = await pool.query(query, params);
 
         // 0.5 단위로 반올림하는 함수
         const roundToNearestHalf = (num) => {
@@ -287,8 +313,13 @@ export const deleteFoldersFromDb = async (userId, folderIds) => {
 export const getProductsInFolderFromDb = async (folderId, userId, cursor = 0, limit = 10) => {
     try {
         // 제품과 해당 제품의 평균 평점 및 리뷰 개수 조회, 하트 상태도 포함
-        const [products] = await pool.query(
-            `SELECT p.id AS product_id, 
+        let query;
+        let params;
+
+        if (cursor === 0) {
+            // cursor가 0인 경우, 0 이후의 상품만 가져오는 쿼리
+            query = `
+                SELECT p.id AS product_id, 
                     p.name, 
                     p.en_price, 
                     p.won_price, 
@@ -301,16 +332,44 @@ export const getProductsInFolderFromDb = async (folderId, userId, cursor = 0, li
                         WHERE uh.user_id = ? 
                         AND uh.product_id = p.id
                     ) AS heart
-             FROM product p
-             JOIN cart_folder_product cfp ON p.id = cfp.product_id
-             LEFT JOIN review r ON p.id = r.product_id
-             WHERE cfp.folder_id = ?
-             AND p.id > ?  -- Cursor-based pagination: 이전 페이지의 마지막 ID보다 큰 ID만 가져옴
-             GROUP BY p.id
-             ORDER BY p.id ASC
-             LIMIT ?`,  // Limit: 한 번에 가져올 제품의 수
-            [userId, folderId, cursor, limit]
-        );
+                FROM product p
+                JOIN cart_folder_product cfp ON p.id = cfp.product_id
+                LEFT JOIN review r ON p.id = r.product_id
+                WHERE cfp.folder_id = ?
+                AND p.id > ?
+                GROUP BY p.id
+                ORDER BY p.id DESC
+                LIMIT ?`;
+            params = [userId, folderId, cursor, limit];
+        } else {
+            // cursor가 0보다 큰 경우, cursor 이전의 상품만 가져오는 쿼리
+            query = `
+                SELECT p.id AS product_id, 
+                    p.name, 
+                    p.en_price, 
+                    p.won_price, 
+                    p.image,
+                    COALESCE(AVG(r.rating), 0) AS average_rating,
+                    COALESCE(COUNT(r.id), 0) AS review_count,
+                    EXISTS(
+                        SELECT 1 
+                        FROM user_heart uh 
+                        WHERE uh.user_id = ? 
+                        AND uh.product_id = p.id
+                    ) AS heart
+                FROM product p
+                JOIN cart_folder_product cfp ON p.id = cfp.product_id
+                LEFT JOIN review r ON p.id = r.product_id
+                WHERE cfp.folder_id = ?
+                AND p.id < ?
+                GROUP BY p.id
+                ORDER BY p.id DESC
+                LIMIT ?`;
+            params = [userId, folderId, cursor, limit];
+        }
+
+        const [products] = await pool.query(query, params);
+
 
         // 0.5 단위로 반올림하는 함수
         const roundToNearestHalf = (num) => {
