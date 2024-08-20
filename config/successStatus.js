@@ -236,4 +236,5 @@ export const successStatus = {
     code: 'HOME_SUCCESS200',
     message: '홈 정보를 성공적으로 조회했습니다.',
   },
+
 };

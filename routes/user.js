@@ -1,8 +1,8 @@
 import express from 'express';
 import passport from 'passport';
-import { response } from '../config/response.js';
+import { errResponse, response } from '../config/response.js';
 import { successStatus } from '../config/successStatus.js';
-import { getRecentSearches } from '../models/searchesDao.js';
+import { getRecentSearches, deleteAllRecentSearches, deleteRecentSearches } from '../models/searchesDao.js';
 import {
   getAllUserController,
   getOneUserController,
@@ -19,6 +19,7 @@ import {
   verifyAccessToken,
   verifyRefreshToken,
 } from '../middleware/jwtMiddleware.js';
+import { errStatus } from '../config/errorStatus.js';
 
 export const userRouter = express.Router();
 
@@ -127,3 +128,36 @@ userRouter.get('/:userId/recent-searches', async (req, res) => {
     res.send(errResponse(errStatus.RECENT_SEARCHES_FAILED));
   }
 });
+
+
+// 개인 최근 검색어 삭제기능 
+userRouter.delete('/:userId/recent-searches', async (req, res) => {
+  const { userId } = req.params;
+  const { keyword } = req.query;
+
+  try {
+    if (keyword) {
+      // 특정 검색어 삭제
+      const success = await deleteRecentSearches(userId, keyword);
+      if (success) {
+        res.send(response(successStatus.DELETE_ONE_RECENT_SEARCHES_SUCCESS));
+      } else {
+        res.send(errResponse(errStatus.RECENT_SEARCH_NOT_FOUND));
+      }
+    } else {
+      // 전체 검색어 삭제
+      const success = await deleteAllRecentSearches(userId);
+      if (success) {
+        res.send(response(successStatus.DELETE_ALL_RECENT_SEARCHES_SUCCESS));
+      } else {
+        res.send(errResponse(errStatus.RECENT_SEARCH_NOT_FOUND));
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    res.send(errResponse(errStatus.RECENT_SEARCH_DELETE_FAILED));
+  }
+});
+ 
+
+
