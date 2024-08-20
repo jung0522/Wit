@@ -13,17 +13,16 @@ const generateToken = (user) => {
     process.env.JWT_SECRET_KEY,
     // access 토큰 유효 기간 설정
     {
-      expiresIn: '1h',
+      expiresIn: '1d',
+      // expiresIn: '1h',
     }
   );
-  console.log('accessToken: ', accessToken);
   return accessToken;
 };
 
 const generateRefreshToken = (user) => {
   let userId = String(user.user_id);
-  console.log('refresh userId', userId);
-  console.log({ id: userId });
+
   const refreshToken = jwt.sign(
     { id: userId }, // jwt.sign의 첫 번째 인자로 payload 전달
     process.env.JWT_REFRESH_SECRET_KEY,
@@ -31,10 +30,8 @@ const generateRefreshToken = (user) => {
       expiresIn: '14d',
     }
   );
-
   // redis에 14일 만료기한으로 저장
   redisClient.SETEX(userId, 1209600, refreshToken);
-  console.log('refresh: ', refreshToken);
   return refreshToken;
 };
 
@@ -50,7 +47,6 @@ const refreshAccessToken = async (req, res) => {
       process.env.JWT_REFRESH_SECRET_KEY
     );
     const storedRefreshToken = await redisClient.get(decoded.id);
-
     if (!storedRefreshToken || storedRefreshToken !== refreshToken) {
       return res.send(errResponse(errStatus.INVALID_REFRESH_TOKEN));
     }
