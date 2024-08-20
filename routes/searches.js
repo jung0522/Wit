@@ -11,14 +11,22 @@ import { errResponse } from '../config/response.js';
 import { response } from '../config/response.js';
 
 import { errStatus } from '../config/errorStatus.js';
+import {
+  decodeAccessToken,
+  logout,
+  refreshAccessToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+} from '../middleware/jwtMiddleware.js';
+
 
 const router = express.Router();
 
 // 기념품 키워드 검색 기능
-router.get('/', async (req, res) => {
-  const { query, category, sort, page = 1, limit = 10, userId } = req.query; // userId를 쿼리 파라미터로 받아야함
-  const offset = (page - 1) * limit;
-
+router.get('/', decodeAccessToken, async (req, res) => {
+  const { query, category, sort,  limit = 10, cursor } = req.query; 
+  const { user_id }=req; // 검색 기능에서도 검증해야함
+  
   let whereClause = '';
   let params = [];
 
@@ -35,6 +43,15 @@ router.get('/', async (req, res) => {
     }
     params.push(category);
   }
+  // 커서 기반 페이지네이션
+  if ( cursor ) {
+    if (whereClause) {
+      whereClause += 'AND product.id > ?';
+    } else {
+      whereClause += 'WHERE product.id > ?';
+    }
+    params.push(cursor);
+  } 
 
   let orderClause = '';
   if (sort) {
@@ -52,8 +69,10 @@ router.get('/', async (req, res) => {
         orderClause = 'ORDER BY rating DESC';
         break;
       default:
-        orderClause = '';
+        orderClause = 'ORDER BY product.id ASC'; // 기본적으로 ID 오름차순 정렬 ;
     }
+  } else {
+    orderClause = 'ORDER BY product.id ASC';
   }
 
   try {
@@ -63,15 +82,16 @@ router.get('/', async (req, res) => {
       whereClause,
       orderClause,
       params,
+      user_id,
       limit,
-      offset
     );
+    const nextCursor= products.length > 0? products[products.length-1].id :null;
+ 
 
     const result = {
       total: total, //총 검색 결과의 개수 
-      page: parseInt(page),
-      limit: parseInt(limit),
       products: products,
+      nextCursor, // 다음 페이지의 커서 
     };
 
     res.send(response(successStatus.PRODUCTS_SEARCH_SUCCESS, result));
@@ -82,8 +102,8 @@ router.get('/', async (req, res) => {
     }
 
     // 최근 검색어 저장
-    if (query && userId) {
-      await saveRecentSearch(userId, query);
+    if (query && user_id) {
+      await saveRecentSearch(user_id, query);
     }
   } catch (err) {
     console.log(err);
@@ -95,12 +115,13 @@ router.get('/', async (req, res) => {
 router.get('/popular', async (req, res) => {
   try {
     const rows = await getPopularSearches();
-    const keywords = rows.map((row, index) => `${index + 1}위: ${row.keyword}`);
+    const keywords = rows.map((row, index) => `${row.keyword}`);
 
     res.send(response(successStatus.POPULAR_SEARCHES_SUCCESS, keywords));
   } catch (err) {
     res.send(errResponse(errStatus.POPULAR_SEARCHES_FAILED));
   }
 });
+
 
 export default router;

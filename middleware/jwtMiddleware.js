@@ -17,6 +17,7 @@ const generateToken = (user) => {
       // expiresIn: '1h',
     }
   );
+  console.log(accessToken)
   return accessToken;
 };
 

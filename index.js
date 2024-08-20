@@ -10,7 +10,7 @@ import { response, errResponse } from './config/response.js';
 import categoryRoutes from './routes/category.js';
 import productRoutes from './routes/product.js';
 import { pool } from './config/db-config.js';
-import noticesRouter from './routes/notices.js';
+import {noticeRouter} from './routes/notices.js';
 import searchesRouter from './routes/searches.js';
 import { userRouter } from './routes/user.js';
 import { passportConfig } from './config/passportConfig.js';
@@ -48,7 +48,7 @@ passportConfig();
 app.use('/user', userRouter);
 app.use('/categories', categoryRoutes);
 app.use('/products', productRoutes);
-app.use('/notices', noticesRouter);
+app.use('/notices', noticeRouter);
 app.use('/searches', searchesRouter);
 app.use('/onboarding', onboardingRouter);
 

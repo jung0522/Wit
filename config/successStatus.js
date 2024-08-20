@@ -237,4 +237,19 @@ export const successStatus = {
     message: '홈 정보를 성공적으로 조회했습니다.',
   },
 
+
+  DELETE_ALL_RECENT_SEARCHES_SUCCESS: {
+    status: 200,
+    isSuccess: true,
+    code: 'RECENT_SEARCH_DELETE_ALL_SUCCESS200',
+    message: '모든 최근 검색어가 성공적으로 삭제되었습니다.',
+  },
+
+  DELETE_ONE_RECENT_SEARCHES_SUCCESS: {
+    status: 200,
+    isSuccess: true,
+    code: 'DELETE_ONE_RECENT_SEARCHES_SUCCESS',
+    message: '최근 검색어가 성공적으로 삭제되었습니다.',
+  }
+
 };
