@@ -4,7 +4,7 @@ export const createFolderWithProducts = async (userId, product_ids, folder_name)
     try {
         // 1. 폴더 생성
         const [folderResult] = await pool.query(
-            'INSERT INTO folder (name, created_by_user) VALUES (?, ?)', 
+            'INSERT INTO folder (name, user_id) VALUES (?, ?)', 
             [folder_name, userId]
         );
 
@@ -190,7 +190,7 @@ export const getUserFoldersFromDb = async (userId, cursor = 0, limit = 10) => {
         // 1단계: 사용자가 생성한 폴더를 커서 기반 페이지네이션으로 조회
         const [folders] = await pool.query(
             `SELECT * FROM folder 
-             WHERE created_by_user = ? 
+             WHERE user_id = ? 
              AND id > ?  -- 커서 기반 페이지네이션
              ORDER BY id ASC
              LIMIT ?`, 
@@ -253,7 +253,7 @@ export const updateFolderNameInDb = async (userId, folderId, newFolderName) => {
         const [result] = await pool.query(
             `UPDATE folder
              SET name = ?
-             WHERE id = ? AND created_by_user = ?`,
+             WHERE id = ? AND user_id = ?`,
             [newFolderName, folderId, userId]
         );
 
@@ -270,7 +270,7 @@ export const deleteFoldersFromDb = async (userId, folderIds) => {
         // 폴더 삭제
         const [result] = await pool.query(
             `DELETE FROM folder
-             WHERE id IN (?) AND created_by_user = ?`,
+             WHERE id IN (?) AND user_id = ?`,
             [folderIds, userId]
         );
 
