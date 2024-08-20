@@ -14,8 +14,8 @@ import {
 const createUser = async (userData) => {
   const connection = await pool.getConnection();
   try {
-    const { id, name, nickname, age, birthday, social_login } = userData;
-    let { gender } = userData;
+    const { id, name, nickname, age, social_login } = userData;
+    let { gender, birthday } = userData;
     if (!name || !nickname || !gender || !age || !birthday || !social_login) {
       throw new Error(errStatus.INVALID_USER_DATA.message);
     }
@@ -24,6 +24,7 @@ const createUser = async (userData) => {
     } else if (gender === 'F') {
       gender = 'female';
     }
+    birthday = `2002${birthday}`;
     const [row] = await pool.query(createUserQuery, [
       id,
       name,
