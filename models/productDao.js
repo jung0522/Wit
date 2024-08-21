@@ -2,7 +2,7 @@ import { pool } from '../config/db-config.js';
 import { errStatus } from '../config/errorStatus.js';
 import { BaseError } from '../config/error.js';
 import { getAllNoticesQuery } from './noticeQuery.js';
-import {getPopularProductsByCategoryQuery,getPopularProductsByALLCategoryQuery} from './productQuery.js';
+import {getPopularProductsByCategoryQuery,getPopularProductsByALLCategoryQuery,getNyamRecommendQuery} from './productQuery.js';
 
 
 // 카테고리별 인기 있는 상품을 한 번에 가져오기
@@ -104,6 +104,25 @@ export const getPopularProductsByCategory = async (category, count) => {
       });
 
       return groupedProducts;
+  } catch (error) {
+      console.error("Error fetching popular products by category:", error);
+      throw new Error('Internal Server Error');
+  } finally {
+      if (connection) connection.release(); // 연결 해제
+  }
+};
+
+// 냠냠 인기 있는 상품 가져오기
+export const getNyamRecommendByUser = async (count) => {
+  const connection = await pool.getConnection(); // 데이터베이스 연결
+  try {
+      let rows;
+      let category;
+      [rows] = await pool.query(getNyamRecommendQuery,[parseInt(count, 10)])
+
+
+      
+      return rows;
   } catch (error) {
       console.error("Error fetching popular products by category:", error);
       throw new Error('Internal Server Error');
