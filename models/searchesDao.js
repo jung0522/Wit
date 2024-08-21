@@ -6,10 +6,10 @@ const countSearches = async (whereClause, params) => {
     return rows[0].total;
   };
 
-const searchProducts = async (whereClause, orderClause, params, userId, limit ) => {
+const searchProducts = async (whereClause, orderClause, params, userId, cursor, limit ) => {
  
     const [rows] = await pool.query(searchesQuery.searchProductsQuery(whereClause, orderClause),
-     [userId, ...params, parseInt(limit)]
+     [userId, ...params, cursor, parseInt(limit)]
      );
     return rows;
   };
