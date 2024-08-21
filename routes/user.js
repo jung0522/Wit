@@ -1,8 +1,13 @@
 import express from 'express';
 import passport from 'passport';
-import { response } from '../config/response.js';
+import { errResponse, response } from '../config/response.js';
 import { successStatus } from '../config/successStatus.js';
-import { getRecentSearches } from '../models/searchesDao.js';
+import { 
+        getRecentSearches, 
+        deleteRecentSearches, 
+        deleteAllRecentSearches}
+
+ from '../models/searchesDao.js';
 import {
   getAllUserController,
   getOneUserController,
@@ -13,10 +18,13 @@ import {
 } from '../controller/userController.js';
 
 import {
-  authenticateJWT,
+  decodeAccessToken,
   logout,
   refreshAccessToken,
+  verifyAccessToken,
+  verifyRefreshToken,
 } from '../middleware/jwtMiddleware.js';
+import { errStatus } from '../config/errorStatus.js';
 
 export const userRouter = express.Router();
 
@@ -34,9 +42,8 @@ userRouter.get(
     const { user_id, accessToken, refreshToken } = req.authInfo;
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
+
     const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
-    // 헤더로 전송하는 로직도 있다
-    // 정적 페이지 설정
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
@@ -67,8 +74,8 @@ userRouter.get(
     const { user_id, accessToken, refreshToken } = req.authInfo;
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
+
     const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
-    // window.opener.postMessage(${JSON.stringify(dataObj)}, '*');
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
@@ -87,40 +94,84 @@ userRouter.get(
   }
 );
 
-userRouter.get('/logout/:user_id', logout);
+userRouter.get('/logout' ,decodeAccessToken , logout  );
 
 // 회원 정보 모두 조회 (이미지 제외)
-userRouter.route('/').get(getAllUserController);
+userRouter.route('/all').get(decodeAccessToken, getAllUserController);
 
 // 회원 탈퇴
-userRouter.delete('/withdraw/:user_id', deleteUserController);
+userRouter.delete('/withdraw', decodeAccessToken, deleteUserController);
 
 userRouter.post('/refresh_token', refreshAccessToken);
 
 userRouter
-  .route('/:user_id')
+  .route('/')
   // 회원 정보 조회 (이미지 제외)
-  .get(getOneUserController)
+  .get(decodeAccessToken, getOneUserController)
   // 회원 정보 수정 (이미지 제외)
-  .post(updateUserController);
+  .post( decodeAccessToken, updateUserController);
 
 // 회원 프로필 이미지 관련 라우터
 userRouter
-  .route('/profile_image/:user_id')
+  .route('/profile_image')
   // 회원 프로필 이미지 조회
-  .get(getProfileImage)
+  .get( decodeAccessToken, getProfileImage)
   // 회원 프로필 이미지 수정, 업로드
-  .post(updateProfileImage);
+  .post(decodeAccessToken, updateProfileImage);
+
+
+userRouter.post('/check_access', verifyAccessToken);
+
+userRouter.post('/check_refresh', verifyRefreshToken);
+
 
 // 개인 최근 검색어 확인
-userRouter.get('/:userId/recent-searches', async (req, res) => {
-  const { userId } = req.params;
-
+userRouter.get('/recent-searches', decodeAccessToken,
+async (req, res) => {  
+  const { user_id } =req;
+  console.log( user_id );
   try {
-    const keywords = await getRecentSearches(userId);
+    const keywords = await getRecentSearches(user_id);
     res.send(response(successStatus.RECENT_SEARCHES_SUCCESS, keywords));
   } catch (err) {
     console.log(err);
     res.send(errResponse(errStatus.RECENT_SEARCHES_FAILED));
   }
-});
+})
+           
+          
+          // 개인 최근 검색어 삭제 기능 
+          .delete('/recent-searches',decodeAccessToken,
+          async (req, res) => {
+           
+            const { keyword } = req.query;
+            const { user_id } =req;
+        
+            try {
+              if (keyword) {
+                
+                // 특정 검색어 삭제
+                const success = await deleteRecentSearches(user_id, keyword);
+                if (success) {
+                  res.send(response(successStatus.DELETE_ONE_RECENT_SEARCHES_SUCCESS));
+                } else {
+                  res.send(errResponse(errStatus.RECENT_SEARCH_NOT_FOUND));
+                }
+              } else {
+                console.log(1);
+                // 전체 검색어 삭제
+                const success = await deleteAllRecentSearches(user_id);
+                if (success) {
+                  res.send(response(successStatus.DELETE_ALL_RECENT_SEARCHES_SUCCESS));
+                } else {
+
+                  res.send(errResponse(errStatus.RECENT_SEARCH_NOT_FOUND));
+                }
+              }
+            } catch (err) {
+              console.log(err);
+              res.send(errResponse(errStatus.RECENT_SEARCH_DELETE_FAILED));
+
+            }
+          });
+          

@@ -10,22 +10,25 @@ import { successStatus } from '../config/successStatus.js';
 import { errResponse } from '../config/response.js';
 import { errStatus } from '../config/errorStatus.js';
 import { response } from '../config/response.js';
+import { decodeAccessToken } from '../middleware/jwtMiddleware.js';
 
-const router = express.Router();
+export const noticeRouter = express.Router();
 
-// 공지사항 목록 조회
-router.get('/', async (req, res) => {
+// 공지사항 목록 조회 라우터 
+noticeRouter.get('/',async (req, res) => {
   try {
     const notices = await getAllNotices();
+
     res.send(response(successStatus.GET_ALL_POSTS_SUCCESS, notices));
   } catch (err) {
-    console.log(err);
+    
     res.send(errResponse(errStatus.INTERNAL_SERVER_ERROR));
   }
 });
 
-//공지사항 상세 조회
-router.get('/:noticeid', async (req, res) => {
+// 공지사항 상세 조회 라우터
+noticeRouter.get('/:noticeid', async (req, res) => {
+
   const noticeId = req.params.noticeid;
 
   try {
@@ -41,15 +44,19 @@ router.get('/:noticeid', async (req, res) => {
 });
 
 // 공지사항 새 글 작성
-router.post('/', async (req, res) => {
+noticeRouter.post('/', decodeAccessToken,
+async (req, res) => {
   const { title, content } = req.body;
+  const { user_id }=req;
 
-  if (!title || !content) {
+  console.log(user_id);
+
+  if (!title || !content || !user_id ) {
     return res.error('BAD_REQUEST');
   }
 
   try {
-    const noticeId = await createNotice(title, content);
+    const noticeId = await createNotice(title, content, user_id);
     const notice = await getNoticeById(noticeId);
 
     res.send(response(successStatus.MAKE_POST_SUCCESS, notice));
@@ -58,9 +65,11 @@ router.post('/', async (req, res) => {
     res.send(errResponse(errStatus.POST_CREATION_FAILED));
   }
 });
+            
+
 
 // 공지사항 수정
-router.put('/:noticeid', async (req, res) => {
+noticeRouter.put('/:noticeid', async (req, res) => {
   const noticeId = req.params.noticeid;
   const { title, content } = req.body;
 
@@ -84,7 +93,7 @@ router.put('/:noticeid', async (req, res) => {
 });
 
 // 공지사항 삭제
-router.delete('/:noticeid', async (req, res) => {
+noticeRouter.delete('/:noticeid', async (req, res) => {
   const noticeId = req.params.noticeid;
 
   try {
@@ -100,4 +109,4 @@ router.delete('/:noticeid', async (req, res) => {
   }
 });
 
-export default router;
+

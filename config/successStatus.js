@@ -69,6 +69,20 @@ export const successStatus = {
     message: '로그아웃에 성공했습니다!',
   },
 
+  ACCESS_TOKEN_IS_VERITY: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'TOKEN 201',
+    message: 'ACCESS TOKEN이 유효합니다.',
+  },
+
+  REFRESH_TOKEN_IS_VERITY: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'TOKEN 201',
+    message: 'REFRESH TOKEN이 유효합니다.',
+  },
+
   WITHDRAW_SUCCESS: {
     status: StatusCodes.OK,
     isSuccess: true,
@@ -182,7 +196,7 @@ export const successStatus = {
   // 유저 최근 검색어 코드 조회 성공
   RECENT_SEARCHES_SUCCESS: {
     status: StatusCodes.OK,
-    isSuccess:true,
+    isSuccess: true,
     code: 'RECENT_SEARCHES200',
     message: '최근 검색어 조회에 성공했습니다.',
   },
@@ -194,19 +208,19 @@ export const successStatus = {
     code: 'POPULAR_SEARCHES200',
     message: '인기 검색어 조회에 성공했습니다.',
   },
-    // Wishlist API
-    CART_ADD_SUCCESS: {
-      status: StatusCodes.CREATED,
-      isSuccess: true,
-      code: 'WISHLIST201',
-      message: '상품이 장바구니에 성공적으로 추가되었습니다.',
-    },
-    GET_WISHLIST_SUCCESS: {
-      status: StatusCodes.OK,
-      isSuccess: true,
-      code: 'WISHLIST200',
-      message: '장바구니 상품 목록을 성공적으로 조회했습니다.',
-    },
+  // Wishlist API
+  CART_ADD_SUCCESS: {
+    status: StatusCodes.CREATED,
+    isSuccess: true,
+    code: 'WISHLIST201',
+    message: '상품이 장바구니에 성공적으로 추가되었습니다.',
+  },
+  GET_WISHLIST_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'WISHLIST200',
+    message: '장바구니 상품 목록을 성공적으로 조회했습니다.',
+  },
 
   // 온보딩 성공
   ONBOARDING_SUCCESS: {
@@ -215,6 +229,29 @@ export const successStatus = {
     code: 'ONBOARDING_SUCCESS200',
     message: '온보딩 정보가 성공적으로 저장되었습니다.',
   },
+
+  // home 성공
+  HOME_SUCCESS: {
+    status: StatusCodes.OK,
+    isSuccess: true,
+    code: 'HOME_SUCCESS200',
+    message: '홈 정보를 성공적으로 조회했습니다.',
+  },
+
+
+  DELETE_ALL_RECENT_SEARCHES_SUCCESS: {
+    status: 200,
+    isSuccess: true,
+    code: 'RECENT_SEARCH_DELETE_ALL_SUCCESS200',
+    message: '모든 최근 검색어가 성공적으로 삭제되었습니다.',
+  },
+
+  DELETE_ONE_RECENT_SEARCHES_SUCCESS: {
+    status: 200,
+    isSuccess: true,
+    code: 'DELETE_ONE_RECENT_SEARCHES_SUCCESS',
+    message: '최근 검색어가 성공적으로 삭제되었습니다.',
+  }
 
     // 리뷰 목록 불러오기 성공
     REVIEWS_RETRIEVED_SUCCESS: {

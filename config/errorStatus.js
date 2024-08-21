@@ -230,4 +230,27 @@ export const errStatus = {
     code: 'ONBOARDING_FAILED500',
     message: '온보딩 저장에 실패했습니다.',
   },
+
+  RECENT_SEARCH_NOT_FOUND: {
+    status: 404,
+    isSuccess: false,
+    code: 'RECENT_SEARCH404',
+    message: '해당 검색어를 찾을 수 없습니다.',
+  },
+
+  RECENT_SEARCH_DELETE_FAILED: {
+    status: 500,
+    isSuccess: false,
+    code: 'RECENT_SEARCH_DELETE500',
+    message: '최근 검색어 삭제에 실패했습니다.',
+  },
+
+  RECENT_SEARCHES_FAILED: {
+    status: 500,
+    isSuccess:false,
+    code: 'RECENT_SEARCHES_FAILED500',
+    message: '최근 검색어 조회에 실패했습니다',
+  },
+
+
 };
