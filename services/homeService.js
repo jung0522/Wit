@@ -4,6 +4,7 @@ import express from "express";
 
 import { getAllNotices } from "../models/noticeDao.js";
 import { getPopularProductsByCategory,getALLProductByALLCategory,getNyamRecommendByUser } from '../models/productDao.js';
+import {getOneUser} from '../models/userDao.js';
 
 export const getHome = async (count) => {
     try {
@@ -16,8 +17,11 @@ export const getHome = async (count) => {
         //get  notice
        
         //유저 정보 가져오는 로직 추가해애함.
-       const userId = 37;
+        const { userId } = req;
 
+
+       // 카테고리별 인기 상품 가져오기
+       const userInfo = getOneUser(userId);
        
        // 유저에 대한 추천 상품 가져오기
        const RecommendForUserResponse = await getCustomProductsByUserId(userId);
@@ -36,6 +40,7 @@ export const getHome = async (count) => {
                 // popularProducts: PopularProductsResponse,
                 // nyamRecommendations: NyamRecommendProductsResponse,
                 // notices: noticeResponse
+            user : userInfo,
             recommendations: nyamProductsResponse,
             popularProducts: PopularProductsResponse,
             nyamRecommendations: nyamProductsResponse,
@@ -61,15 +66,16 @@ export const getProductByCategoryID = async (category,count) => {
         //get  notice
        
         //유저 정보 가져오는 로직 추가해애함.
-       const userId = 37;
+        const { userId } = req;
+
 
        // 카테고리별 인기 상품 가져오기
+       const userInfo = getOneUser(userId);
        const PopularProductsResponse = await getPopularProductsByCategory(category,count);
 
-       // 공지사항 가져오기
-       const noticeResponse = await getAllNotices();
         // 메인 홈 응답 구성
-        return { 
+        return {
+                user : userInfo,
                 popularProducts: PopularProductsResponse,            
         };
 
@@ -94,14 +100,19 @@ const getCustomProductsByUserId = async(userId) =>{
 
 export const getNyamRecommend = async(count)=>{
     try{
-        //유저 정보 가져오는 로직 추가해애함.
-       const userId = 37;
+           //유저 정보 가져오는 로직 추가해애함.
+           const { userId } = req;
 
-       // 냠냠  인기 상품 가져오기
+
+           // 카테고리별 인기 상품 가져오기
+           const userInfo = getOneUser(userId);
+        // 냠냠  인기 상품 가져오기
        const nyamProductsResponse = await getNyamRecommendByUser(count);
 
         // 메인 홈 응답 구성
         return { 
+            user : userInfo,
+
             nyamRecommendations: nyamProductsResponse,            
         };
 
@@ -113,13 +124,17 @@ export const getNyamRecommend = async(count)=>{
 export const getRecommend = async(count)=>{
     try{
         //유저 정보 가져오는 로직 추가해애함.
-       const userId = 37;
+        const { userId } = req;
 
+
+       // 카테고리별 인기 상품 가져오기
+       const userInfo = getOneUser(userId);
        // 냠냠  인기 상품 가져오기
        const nyamProductsResponse = await getNyamRecommendByUser(count);
 
         // 메인 홈 응답 구성
         return { 
+            user : userInfo,
             recommendations: nyamProductsResponse,            
         };
 

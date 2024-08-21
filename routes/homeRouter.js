@@ -3,12 +3,15 @@ import passport from 'passport';
 import { response } from '../config/response.js';
 import { successStatus } from '../config/successStatus.js';
 import { getHome,getProductByCategoryID,getNyamRecommend,getRecommend } from '../services/homeService.js';
+import {
+    decodeAccessToken,
+  } from '../middleware/jwtMiddleware.js';
 
 const homeRouter = express.Router();
 
 
 // 카테고리 추천
-homeRouter.get('/', async (req, res) => {
+homeRouter.get('/', decodeAccessToken,async (req, res) => {
     //main_cateogryID와 cateogry를 통해 가져올 count
     const { count } = req.query;
     console.log(count)
@@ -22,7 +25,7 @@ homeRouter.get('/', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch products' });
     }
 });
-homeRouter.get('/category', async (req, res) => {
+homeRouter.get('/category', decodeAccessToken,async (req, res) => {
     //main_cateogryID와 cateogry를 통해 가져올 count
     const { category, count } = req.query;
     console.log(category,count)
@@ -35,7 +38,7 @@ homeRouter.get('/category', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch products' });
     }
 });
-homeRouter.get('/nyam', async (req, res) => {
+homeRouter.get('/nyam',decodeAccessToken, async (req, res) => {
     try {
         const { count } = req.query;
         const homeMainResponse = await getNyamRecommend(count);
@@ -45,7 +48,7 @@ homeRouter.get('/nyam', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch products' });
     }
 });
-homeRouter.get('/recommend', async (req, res) => {
+homeRouter.get('/recommend',decodeAccessToken, async (req, res) => {
     try {
         const { count } = req.query;
         const homeMainResponse = await getRecommend(count);
