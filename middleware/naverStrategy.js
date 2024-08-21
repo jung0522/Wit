@@ -14,7 +14,6 @@ const naverStrategy = () => {
       {
         clientID: process.env.NAVER_CLIENT_ID,
         clientSecret: process.env.NAVER_CLIENT_SECRET,
-        // 네이버는 배포시 ip 정확히 박아줘야함
         callbackURL: 'http://43.202.194.145/user/naver_signin/callback',
       },
       // 여기에 있는 accessToken, refreshToken은 네이버 api를 위한 토큰임 (jwt 아님)
@@ -47,7 +46,6 @@ const naverStrategy = () => {
             return done(null, newUser, { user_id, accessToken, refreshToken });
           }
         } catch (error) {
-          console.log(error);
           return done(error, false, {
             status: errStatus.INTERNAL_SERVER_ERROR,
           });
