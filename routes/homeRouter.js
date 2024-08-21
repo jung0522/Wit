@@ -16,11 +16,11 @@ homeRouter.get('/', decodeAccessToken,async (req, res) => {
     const { count } = req.query;
     console.log(count)
             //유저 정보 가져오는 로직 추가해애함.
-    const { userId } = req;
+            const { user_id } = req;
 
 
     try {
-        const homeMainResponse = await getHome(count,userId);
+        const homeMainResponse = await getHome(count,user_id);
         res.send(response(successStatus.HOME_SUCCESS, homeMainResponse));
     } catch (err) {
         console.error("Error fetching products:", err);
@@ -32,10 +32,10 @@ homeRouter.get('/category', decodeAccessToken,async (req, res) => {
     const { category, count } = req.query;
     console.log(category,count)
             //유저 정보 가져오는 로직 추가해애함.
-            const { userId } = req;
+            const { user_id } = req;
     
     try {
-        const homeMainResponse = await getProductByCategoryID(category,count,userId);
+        const homeMainResponse = await getProductByCategoryID(category,count,user_id);
         res.send(response(successStatus.HOME_SUCCESS, homeMainResponse));
     } catch (err) {
         console.error("Error fetching products:", err);
@@ -46,8 +46,9 @@ homeRouter.get('/nyam',decodeAccessToken, async (req, res) => {
     try {
         const { count } = req.query;
                 //유저 정보 가져오는 로직 추가해애함.
-                const { userId } = req;
-        const homeMainResponse = await getNyamRecommend(count,userId);
+                const { user_id } = req;
+                console.log(user_id)
+        const homeMainResponse = await getNyamRecommend(count,user_id);
         res.send(response(successStatus.HOME_SUCCESS, homeMainResponse));
     } catch (err) {
         console.error("Error fetching products:", err);
@@ -58,8 +59,8 @@ homeRouter.get('/recommend',decodeAccessToken, async (req, res) => {
     try {
         const { count } = req.query;
                 //유저 정보 가져오는 로직 추가해애함.
-                const { userId } = req;
-        const homeMainResponse = await getRecommend(count,userId);
+                const { user_id } = req;
+        const homeMainResponse = await getRecommend(count,user_id);
         res.send(response(successStatus.HOME_SUCCESS, homeMainResponse));
     } catch (err) {
         console.error("Error fetching products:", err);

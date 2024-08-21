@@ -98,7 +98,7 @@ export const getNyamRecommend = async(count,userId)=>{
     try{
            
 
-
+        console.log(userId)
            // 카테고리별 인기 상품 가져오기
            const userInfo = getOneUser(userId);
         // 냠냠  인기 상품 가져오기
@@ -119,12 +119,12 @@ export const getNyamRecommend = async(count,userId)=>{
 export const getRecommend = async(count,userId)=>{
     try{
 
-
+        console.log(userId)
        // 카테고리별 인기 상품 가져오기
        const userInfo = getOneUser(userId);
        // 냠냠  인기 상품 가져오기
        const nyamProductsResponse = await getNyamRecommendByUser(count);
-
+        
         // 메인 홈 응답 구성
         return { 
             user : userInfo,
