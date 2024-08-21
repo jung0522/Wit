@@ -6,7 +6,7 @@ import { getAllNotices } from "../models/noticeDao.js";
 import { getPopularProductsByCategory,getALLProductByALLCategory,getNyamRecommendByUser } from '../models/productDao.js';
 import {getOneUser} from '../models/userDao.js';
 
-export const getHome = async (count) => {
+export const getHome = async (count,userId) => {
     try {
        console.log("asdasdasd")
        console.log(count)
@@ -16,8 +16,6 @@ export const getHome = async (count) => {
         //get products By userId
         //get  notice
        
-        //유저 정보 가져오는 로직 추가해애함.
-        const { userId } = req;
 
 
        // 카테고리별 인기 상품 가져오기
@@ -55,7 +53,7 @@ export const getHome = async (count) => {
 
 }
 
-export const getProductByCategoryID = async (category,count) => {
+export const getProductByCategoryID = async (category,count,userId) => {
     try {
        console.log("asdasdasd")
        console.log(category,count)
@@ -65,8 +63,6 @@ export const getProductByCategoryID = async (category,count) => {
         //get products By userId
         //get  notice
        
-        //유저 정보 가져오는 로직 추가해애함.
-        const { userId } = req;
 
 
        // 카테고리별 인기 상품 가져오기
@@ -98,10 +94,9 @@ const getCustomProductsByUserId = async(userId) =>{
 
 }
 
-export const getNyamRecommend = async(count)=>{
+export const getNyamRecommend = async(count,userId)=>{
     try{
-           //유저 정보 가져오는 로직 추가해애함.
-           const { userId } = req;
+           
 
 
            // 카테고리별 인기 상품 가져오기
@@ -121,10 +116,8 @@ export const getNyamRecommend = async(count)=>{
     }
 }
 
-export const getRecommend = async(count)=>{
+export const getRecommend = async(count,userId)=>{
     try{
-        //유저 정보 가져오는 로직 추가해애함.
-        const { userId } = req;
 
 
        // 카테고리별 인기 상품 가져오기
