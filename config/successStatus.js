@@ -238,7 +238,6 @@ export const successStatus = {
     message: '홈 정보를 성공적으로 조회했습니다.',
   },
 
-
   DELETE_ALL_RECENT_SEARCHES_SUCCESS: {
     status: 200,
     isSuccess: true,
@@ -251,13 +250,13 @@ export const successStatus = {
     isSuccess: true,
     code: 'DELETE_ONE_RECENT_SEARCHES_SUCCESS',
     message: '최근 검색어가 성공적으로 삭제되었습니다.',
-  }
+  },
 
-    // 리뷰 목록 불러오기 성공
-    REVIEWS_RETRIEVED_SUCCESS: {
-      status: StatusCodes.OK,  // 200 상태 코드
-      isSuccess: true,  // 성공 여부
-      code: 'REVIEW200',  
-      message: '리뷰 목록 조회에 성공했습니다.',  
-    },
+  // 리뷰 목록 불러오기 성공
+  REVIEWS_RETRIEVED_SUCCESS: {
+    status: StatusCodes.OK, // 200 상태 코드
+    isSuccess: true, // 성공 여부
+    code: 'REVIEW200',
+    message: '리뷰 목록 조회에 성공했습니다.',
+  },
 };
