@@ -42,6 +42,7 @@ userRouter.get(
     const { user_id, accessToken, refreshToken } = req.authInfo;
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
+
     const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
     res.send(`
       <!DOCTYPE html>
@@ -73,6 +74,7 @@ userRouter.get(
     const { user_id, accessToken, refreshToken } = req.authInfo;
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
+
     const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
     res.send(`
       <!DOCTYPE html>
@@ -92,7 +94,7 @@ userRouter.get(
   }
 );
 
-userRouter.get('/logout', decodeAccessToken, logout);
+userRouter.get('/logout' ,decodeAccessToken , logout  );
 
 // 회원 정보 모두 조회 (이미지 제외)
 userRouter.route('/all').get(decodeAccessToken, getAllUserController);
@@ -107,13 +109,13 @@ userRouter
   // 회원 정보 조회 (이미지 제외)
   .get(decodeAccessToken, getOneUserController)
   // 회원 정보 수정 (이미지 제외)
-  .post(decodeAccessToken, updateUserController);
+  .post( decodeAccessToken, updateUserController);
 
 // 회원 프로필 이미지 관련 라우터
 userRouter
   .route('/profile_image')
   // 회원 프로필 이미지 조회
-  .get(decodeAccessToken, getProfileImage)
+  .get( decodeAccessToken, getProfileImage)
   // 회원 프로필 이미지 수정, 업로드
   .post(decodeAccessToken, updateProfileImage);
 
@@ -124,7 +126,7 @@ userRouter.post('/check_refresh', verifyRefreshToken);
 
 
 // 개인 최근 검색어 확인
-userRouter.get('/recent-searches',decodeAccessToken, 
+userRouter.get('/recent-searches', decodeAccessToken,
 async (req, res) => {  
   const { user_id } =req;
   console.log( user_id );
@@ -139,7 +141,7 @@ async (req, res) => {
            
           
           // 개인 최근 검색어 삭제 기능 
-          .delete('/recent-searches',decodeAccessToken, 
+          .delete('/recent-searches',decodeAccessToken,
           async (req, res) => {
            
             const { keyword } = req.query;

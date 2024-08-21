@@ -3,36 +3,34 @@ import { pool } from '../config/db-config.js';
 import { insertSouvenirQuery, insertTravelQuery, insertPersonalityQuery } from '../models/onboardingQuery.js';
 
 
-export const insertSouvenir = async (userId, souvenirName) => {
+export const insertSouvenir = async (userId, souvenirs) => {
+  const query=insertSouvenirQuery(userId,souvenirs);
     try {
-      console.log('Executing insertSouvenir query with:', { userId, souvenirName });
-      const [result] = await pool.query(insertSouvenirQuery, [userId, souvenirName]);
-      console.log(await pool.query(insertSouvenirQuery, [userId, souvenirName]));
-      console.log('Souvenir insert result:', result);
-      return result.insertId;
+      const [result] = await pool.query(query);
+      return result;
     } catch (err) {
       console.error('Failed to insert souvenir:', err);
       throw err;
     }
   };
+
   
-  export const insertTravel = async (userId, destination) => {
+  export const insertTravel = async (userId, destinations) => {
+    const query=insertTravelQuery(userId, destinations);
     try {
-      console.log('Executing insertTravel query with:', { userId, destination });
-      const [result] = await pool.query(insertTravelQuery, [userId, destination]);
-      console.log('Travel insert result:', result);
-      return result.insertId;
+      const [result] = await pool.query(query);
+      return result;
     } catch (err) {
       console.error('Failed to insert travel:', err);
       throw err;
     }
   };
   
-  export const insertPersonality = async (userId, personalityName) => {
+  export const insertPersonality = async (userId, personalities) => {
+    const query=insertPersonalityQuery(userId,personalities);
     try {
-      console.log('Executing insertPersonality query with:', { userId, personalityName });
-      const [result] = await pool.query(insertPersonalityQuery, [userId, personalityName]);
-      console.log('Personality insert result:', result);
+      const [result] = await pool.query(query);
+
       return result.insertId;
     } catch (err) {
       console.error('Failed to insert personality:', err);
