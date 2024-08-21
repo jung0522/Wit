@@ -46,7 +46,6 @@ const naverStrategy = () => {
             return done(null, newUser, { user_id, accessToken, refreshToken });
           }
         } catch (error) {
-          console.log(error);
           return done(error, false, {
             status: errStatus.INTERNAL_SERVER_ERROR,
           });

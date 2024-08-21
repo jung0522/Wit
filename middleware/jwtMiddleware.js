@@ -100,7 +100,6 @@ const verifyAccessToken = (req, res) => {
     };
     return res.send(response(successStatus.ACCESS_TOKEN_IS_VERITY, data));
   } catch (err) {
-    console.log(err);
     return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
   }
 };
@@ -121,7 +120,6 @@ const verifyRefreshToken = (req, res) => {
     };
     return res.send(response(successStatus.REFRESH_TOKEN_IS_VERITY, data));
   } catch (err) {
-    console.log(err);
     return res.send(errResponse(errStatus.INVALID_REFRESH_TOKEN));
   }
 };
