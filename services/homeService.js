@@ -19,7 +19,7 @@ export const getHome = async (count,userId) => {
 
 
        // 카테고리별 인기 상품 가져오기
-       const userInfo = getOneUser(userId);
+       const userInfo = await getOneUser(userId);
        
        // 유저에 대한 추천 상품 가져오기
        const RecommendForUserResponse = await getCustomProductsByUserId(userId);
@@ -66,7 +66,7 @@ export const getProductByCategoryID = async (category,count,userId) => {
 
 
        // 카테고리별 인기 상품 가져오기
-       const userInfo = getOneUser(userId);
+       const userInfo = await getOneUser(userId);
        const PopularProductsResponse = await getPopularProductsByCategory(category,count);
 
         // 메인 홈 응답 구성
@@ -100,7 +100,8 @@ export const getNyamRecommend = async(count,userId)=>{
 
         console.log(userId)
            // 카테고리별 인기 상품 가져오기
-           const userInfo = getOneUser(userId);
+           const userInfo = await getOneUser(userId);
+           console.log(userInfo)
         // 냠냠  인기 상품 가져오기
        const nyamProductsResponse = await getNyamRecommendByUser(count);
 
@@ -121,7 +122,7 @@ export const getRecommend = async(count,userId)=>{
 
         console.log(userId)
        // 카테고리별 인기 상품 가져오기
-       const userInfo = getOneUser(userId);
+       const userInfo = await getOneUser(userId);
        // 냠냠  인기 상품 가져오기
        const nyamProductsResponse = await getNyamRecommendByUser(count);
         
