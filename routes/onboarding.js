@@ -8,35 +8,32 @@ import { successStatus } from '../config/successStatus.js';
 import { errResponse } from '../config/response.js';
 import { errStatus } from '../config/errorStatus.js';
 import { response } from '../config/response.js';
+import { decodeAccessToken } from '../middleware/jwtMiddleware.js';
 
-const router = express.Router();
 
-router.post('/', async (req, res) => {
-  const { userId, souvenirname, destination, personalityname } = req.body;
+export const onboardingRouter = express.Router();
+
+onboardingRouter.post('/', decodeAccessToken, 
+async (req, res) => {
+  const { user_id } = req; 
+  const { souvenirname, destination, personalityname } = req.body;
   const souvenirs = souvenirname || [];
   const destinations = destination || [];
   const personalities = personalityname || [];
 
-  // body로 id
-  // let user_id = 'Ap5BdCME9t9BpcJO3hOouKnoqchy8B3OFZ2y0FPOpCQ';
+  console.log('User ID:', user_id);
+  console.log('Souvenirs:', souvenirs, 'Destinations:', destinations, 'Personalities:', personalities);
 
-  console.log(userId, souvenirname, destination, personalityname);
 
-  console.log(
-    '배열 확인',
-    souvenirname.length,
-    destination.length,
-    personalityname.length
-  );
-
+ 
   if (
-    !userId ||
+    !user_id ||
     !Array.isArray(souvenirname) ||
     !Array.isArray(destination) ||
     !Array.isArray(personalityname)
   ) {
     console.error('Validation Error:', {
-      userId,
+      user_id,
       souvenirname,
       destination,
       personalityname,
@@ -57,26 +54,21 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    console.log('Saving data:', {
-      userId,
-      souvenirname,
-      destination,
-      personalityname,
-    });
+    
     console.log(souvenirs, destinations, personalities);
     // 기념품 정보 저장
-    for (const souvenirname of souvenirs) {
-      await insertSouvenir(userId, souvenirname);
-    }
+      if (souvenirs.length>0) {
+      await insertSouvenir(user_id, souvenirs);
+      }
 
     // 여행 정보 저장
-    for (const destination of destinations) {
-      await insertTravel(userId, destination);
-    }
+      if (destinations.length>0) {
+      await insertTravel(user_id, destinations);
+      }
 
     // 성향 정보 저장
-    for (const personality of personalities) {
-      await insertPersonality(userId, personality);
+    if (personalities.length >0 ) {
+      await insertPersonality(user_id,personalities);
     }
 
     res.send(response(successStatus.ONBOARDING_SUCCESS));
@@ -86,4 +78,4 @@ router.post('/', async (req, res) => {
   }
 });
 
-export default router;
+

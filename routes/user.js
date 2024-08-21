@@ -44,6 +44,7 @@ userRouter.get(
     const { user_id, accessToken, refreshToken } = req.authInfo;
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
+
     const dataObj = response(successStatus.NAVER_LOGIN_SUCCESS, data);
     res.send(`
       <!DOCTYPE html>
@@ -76,6 +77,7 @@ userRouter.get(
     req.session.accessToken = accessToken;
     const data = { user_id, accessToken, refreshToken };
     const dataObj = response(successStatus.KAKAO_LOGIN_SUCCESS, data);
+
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
@@ -93,7 +95,7 @@ userRouter.get(
     `);
   }
 );
-// 로그아웃
+
 userRouter.get('/logout', decodeAccessToken, logout);
 
 // 회원 탈퇴
@@ -112,7 +114,9 @@ userRouter
 userRouter
   .route('/profile_image')
   // 회원 프로필 이미지 조회
+
   .get(decodeAccessToken, getProfileImageService)
+
   // 회원 프로필 이미지 수정, 업로드
   .post(decodeAccessToken, updateProfileImageService);
 
@@ -149,6 +153,7 @@ userRouter
           res.send(errResponse(errStatus.RECENT_SEARCH_NOT_FOUND));
         }
       } else {
+        console.log(1);
         // 전체 검색어 삭제
         const success = await deleteAllRecentSearches(user_id);
         if (success) {

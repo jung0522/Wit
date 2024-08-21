@@ -2,7 +2,6 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
-import onboardingRouter from './routes/onboarding.js';
 import passport from 'passport';
 import session from 'express-session';
 import morgan from 'morgan';
@@ -13,7 +12,7 @@ import { noticeRouter } from './routes/notices.js';
 import searchesRouter from './routes/searches.js';
 import { userRouter } from './routes/user.js';
 import { passportConfig } from './config/passportConfig.js';
-
+import { onboardingRouter } from './routes/onboarding.js';
 import cartRouter from './routes/cartRouter.js';
 import mypageRouter from './routes/mypageRouter.js';
 import wishlistRouter from './routes/wishlistRouter.js';

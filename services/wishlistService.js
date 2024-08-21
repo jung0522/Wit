@@ -1,15 +1,16 @@
 import { pool } from '../config/db-config.js';
 
-// 폴더 생성 서비스
 export const createFolderWithProducts = async (userId, product_ids, folder_name) => {
     try {
+        // 1. 폴더 생성
         const [folderResult] = await pool.query(
-            'INSERT INTO folder (name, created_by_user) VALUES (?, ?)', 
+            'INSERT INTO folder (name, user_id) VALUES (?, ?)', 
             [folder_name, userId]
         );
 
         const folderId = folderResult.insertId;
 
+        // 2. 폴더에 제품 추가
         for (const productId of product_ids) {
             await pool.query(
                 'INSERT INTO cart_folder_product (folder_id, product_id) VALUES (?, ?)', 
@@ -17,20 +18,43 @@ export const createFolderWithProducts = async (userId, product_ids, folder_name)
             );
         }
 
+        // 3. 추가된 제품 정보와 리뷰, 하트 상태 조회
         const [products] = await pool.query(
-            `SELECT p.id AS product_id, p.name, p.en_price, p.won_price, p.image, p.manufacturing_country
+            `SELECT 
+                p.id AS product_id, 
+                p.name, 
+                p.en_price, 
+                p.won_price, 
+                p.image,
+                COALESCE(AVG(r.rating), 0) AS average_rating,
+                COALESCE(COUNT(r.id), 0) AS review_count,
+                EXISTS(SELECT 1 FROM user_heart uh WHERE uh.user_id = ? AND uh.product_id = p.id) AS heart
              FROM product p
              JOIN cart_folder_product cfp ON p.id = cfp.product_id
-             WHERE cfp.folder_id = ?`,
-            [folderId]
+             LEFT JOIN review r ON p.id = r.product_id
+             WHERE cfp.folder_id = ?
+             GROUP BY p.id`,
+            [userId, folderId]
         );
+
+        // 0.5 단위로 반올림하는 함수
+        const roundToNearestHalf = (num) => {
+            return Math.round(num * 2) / 2;
+        };
+
+        // 평균 평점을 0.5 단위로 반올림
+        const roundedProducts = products.map(product => ({
+            ...product,
+            average_rating: roundToNearestHalf(product.average_rating),
+            heart: product.heart === 1 // heart가 1이면 true, 아니면 false로 변환
+        }));
 
         return {
             message: 'Folder created successfully',
             data: {
                 folderId,
                 folder_name,
-                products
+                products: roundedProducts
             }
         };
     } catch (error) {
@@ -39,51 +63,187 @@ export const createFolderWithProducts = async (userId, product_ids, folder_name)
     }
 };
 
-// 장바구니에서 제품 조회 서비스
-export const getProductsInCart = async (userId) => {
+export const addProductsToFolders = async (folderIds, productIds, userId) => {
     try {
-        const [cart] = await pool.query('SELECT * FROM cart WHERE user_id = ?', [userId]);
-
-        if (cart.length === 0) {
-            return { count: 0, products: [] };
+        // 각 폴더에 제품 추가
+        for (const folderId of folderIds) {
+            for (const productId of productIds) {
+                await pool.query(
+                    'INSERT INTO cart_folder_product (folder_id, product_id) VALUES (?, ?)', 
+                    [folderId, productId]
+                );
+            }
         }
 
-        const cartId = cart[0].id;
-
+        // 모든 폴더에 대한 업데이트된 제품 정보 조회
         const [products] = await pool.query(
-            `SELECT p.id AS product_id, p.name, p.en_price, p.won_price, p.image, p.manufacturing_country
+            `SELECT 
+                p.id AS product_id, 
+                p.name, 
+                p.en_price, 
+                p.won_price, 
+                p.image,
+                COALESCE(AVG(r.rating), 0) AS average_rating,
+                COALESCE(COUNT(r.id), 0) AS review_count,
+                EXISTS(SELECT 1 FROM user_heart uh WHERE uh.user_id = ? AND uh.product_id = p.id) AS heart
              FROM product p
              JOIN cart_folder_product cfp ON p.id = cfp.product_id
-             JOIN folder f ON cfp.folder_id = f.id
-             WHERE f.cart_id = ?
+             LEFT JOIN review r ON p.id = r.product_id
+             WHERE cfp.folder_id IN (?)
              GROUP BY p.id`,
-            [cartId]
+            [userId, folderIds]
         );
 
+        // 0.5 단위로 반올림하는 함수
+        const roundToNearestHalf = (num) => {
+            return Math.round(num * 2) / 2;
+        };
+
+        // 평균 평점을 0.5 단위로 반올림
+        const roundedProducts = products.map(product => ({
+            ...product,
+            average_rating: roundToNearestHalf(product.average_rating),
+            heart: product.heart === 1 // heart가 1이면 true, 아니면 false로 변환
+        }));
+
         return {
-            count: products.length,
-            products
+            message: '폴더에 제품이 성공적으로 추가되었습니다',
+            data: {
+                folderIds,
+                products: roundedProducts
+            }
         };
     } catch (error) {
-        console.error('Error retrieving products from cart', error);
+        console.error('폴더에 제품 추가 중 오류 발생', error);
         throw error;
     }
 };
 
-// 유저가 생성한 폴더 조회 서비스
-export const getUserCreatedFolders = async (userId) => {
-    try {
-        const [folders] = await pool.query('SELECT * FROM folder WHERE created_by_user = ?', [userId]);
 
-        if (folders.length === 0) {
-            return { count: 0, folders: [] };
+export const getProductsInCart = async (userId, cursor = 0, limit = 10) => {
+    try {
+        // 1단계: 사용자의 장바구니 조회
+        const [cart] = await pool.query('SELECT * FROM cart WHERE user_id = ?', [userId]);
+
+        if (cart.length === 0) {
+            return { count: 0, products: [], nextCursor: null };
         }
 
+        const cartId = cart[0].id;
+
+        // 2단계: 장바구니의 제품과 해당 제품의 평균 평점, 리뷰 개수, heart 상태 조회
+        let query;
+        let params;
+
+        if (cursor === 0) {
+            query = `
+                SELECT p.id AS product_id, p.name, p.en_price, p.won_price, p.image,
+                    COALESCE(AVG(r.rating), 0) AS average_rating,
+                    COALESCE(COUNT(r.id), 0) AS review_count,
+                    EXISTS (
+                        SELECT 1 
+                        FROM user_heart uh 
+                        WHERE uh.user_id = ? AND uh.product_id = p.id
+                    ) AS heart
+                FROM product p
+                JOIN cart_folder_product cfp ON p.id = cfp.product_id
+                JOIN folder f ON cfp.folder_id = f.id
+                LEFT JOIN review r ON p.id = r.product_id
+                WHERE f.cart_id = ?
+                AND p.id > ?
+                GROUP BY p.id
+                ORDER BY p.id DESC
+                LIMIT ?`;
+            params = [userId, cartId, cursor, limit];
+        } else {
+            query = `
+                SELECT p.id AS product_id, p.name, p.en_price, p.won_price, p.image,
+                    COALESCE(AVG(r.rating), 0) AS average_rating,
+                    COALESCE(COUNT(r.id), 0) AS review_count,
+                    EXISTS (
+                        SELECT 1 
+                        FROM user_heart uh 
+                        WHERE uh.user_id = ? AND uh.product_id = p.id
+                    ) AS heart
+                FROM product p
+                JOIN cart_folder_product cfp ON p.id = cfp.product_id
+                JOIN folder f ON cfp.folder_id = f.id
+                LEFT JOIN review r ON p.id = r.product_id
+                WHERE f.cart_id = ?
+                AND p.id < ?
+                GROUP BY p.id
+                ORDER BY p.id DESC
+                LIMIT ?`;
+            params = [userId, cartId, cursor, limit];
+        }
+
+        const [products] = await pool.query(query, params);
+
+        // 0.5 단위로 반올림하는 함수
+        const roundToNearestHalf = (num) => {
+            return Math.round(num * 2) / 2;
+        };
+
+        // 평균 평점을 0.5 단위로 반올림하고 결과 반환
+        const roundedProducts = products.map(product => ({
+            ...product,
+            average_rating: roundToNearestHalf(product.average_rating),
+            heart: product.heart === 1 // heart 상태를 Boolean으로 변환
+        }));
+
+        // nextCursor 계산: 결과 중 마지막 제품의 ID를 다음 cursor로 사용
+        const nextCursor = roundedProducts.length === limit ? roundedProducts[roundedProducts.length - 1].product_id : null;
+
+        return {
+            count: roundedProducts.length,
+            products: roundedProducts,
+            nextCursor
+        };
+    } catch (error) {
+        console.error('장바구니에서 제품을 조회하는 중 오류 발생', error);
+        throw error;
+    }
+};
+
+
+
+
+
+
+// 유저가 생성한 폴더 조회 서비스
+export const getUserFoldersFromDb = async (userId, cursor = 0, limit = 10) => {
+    try {
+        // 1단계: 사용자가 생성한 폴더를 커서 기반 페이지네이션으로 조회
+        const [folders] = await pool.query(
+            `SELECT * FROM folder 
+             WHERE user_id = ? 
+             AND id > ?  -- 커서 기반 페이지네이션
+             ORDER BY id ASC
+             LIMIT ?`, 
+            [userId, cursor, limit]
+        );
+
+        if (folders.length === 0) {
+            return { count: 0, folders: [], nextCursor: null };
+        }
+
+        // 2단계: 각 폴더에 대한 제품 이미지와 제품 수 조회
         const foldersWithProducts = await Promise.all(folders.map(async folder => {
-            const [products] = await pool.query(
-                `SELECT p.id AS product_id, p.name, p.en_price, p.won_price, p.image, p.manufacturing_country
+            const [productRows] = await pool.query(
+                `SELECT p.image
                  FROM product p
                  JOIN cart_folder_product cfp ON p.id = cfp.product_id
+                 WHERE cfp.folder_id = ?
+                 ORDER BY p.id DESC
+                 LIMIT 3`, // 최신 3개의 이미지 선택
+                [folder.id]
+            );
+
+            const images = productRows.map(row => row.image);
+
+            const [[{ productCount }]] = await pool.query(
+                `SELECT COUNT(*) AS productCount
+                 FROM cart_folder_product cfp
                  WHERE cfp.folder_id = ?`,
                 [folder.id]
             );
@@ -91,19 +251,27 @@ export const getUserCreatedFolders = async (userId) => {
             return {
                 folder_id: folder.id,
                 folder_name: folder.name,
-                products
+                images,
+                product_count: productCount
             };
         }));
 
+        // 3단계: 다음 커서 계산
+        const nextCursor = foldersWithProducts.length === limit 
+            ? foldersWithProducts[foldersWithProducts.length - 1].folder_id 
+            : null;
+
         return {
             count: foldersWithProducts.length,
-            folders: foldersWithProducts
+            folders: foldersWithProducts,
+            nextCursor // null이면 더 이상 가져올 폴더가 없음을 의미
         };
     } catch (error) {
-        console.error('Error retrieving user-created folders', error);
+        console.error('사용자가 생성한 폴더를 조회하는 중 오류 발생', error);
         throw error;
     }
 };
+
 
 // 폴더 이름 변경 서비스
 export const updateFolderNameInDb = async (userId, folderId, newFolderName) => {
@@ -111,7 +279,7 @@ export const updateFolderNameInDb = async (userId, folderId, newFolderName) => {
         const [result] = await pool.query(
             `UPDATE folder
              SET name = ?
-             WHERE id = ? AND created_by_user = ?`,
+             WHERE id = ? AND user_id = ?`,
             [newFolderName, folderId, userId]
         );
 
@@ -128,7 +296,7 @@ export const deleteFoldersFromDb = async (userId, folderIds) => {
         // 폴더 삭제
         const [result] = await pool.query(
             `DELETE FROM folder
-             WHERE id IN (?) AND created_by_user = ?`,
+             WHERE id IN (?) AND user_id = ?`,
             [folderIds, userId]
         );
 
@@ -142,26 +310,96 @@ export const deleteFoldersFromDb = async (userId, folderIds) => {
     }
 };
 
-// 폴더 내 상품 정보 조회 서비스
-export const getProductsInFolderFromDb = async (folderId) => {
+export const getProductsInFolderFromDb = async (folderId, userId, cursor = 0, limit = 10) => {
     try {
-        const [products] = await pool.query(
-            `SELECT p.id AS product_id, p.name, p.en_price, p.won_price, p.image, p.manufacturing_country
-             FROM product p
-             JOIN cart_folder_product cfp ON p.id = cfp.product_id
-             WHERE cfp.folder_id = ?`,
-            [folderId]
-        );
+        // 제품과 해당 제품의 평균 평점 및 리뷰 개수 조회, 하트 상태도 포함
+        let query;
+        let params;
+
+        if (cursor === 0) {
+            // cursor가 0인 경우, 0 이후의 상품만 가져오는 쿼리
+            query = `
+                SELECT p.id AS product_id, 
+                    p.name, 
+                    p.en_price, 
+                    p.won_price, 
+                    p.image,
+                    COALESCE(AVG(r.rating), 0) AS average_rating,
+                    COALESCE(COUNT(r.id), 0) AS review_count,
+                    EXISTS(
+                        SELECT 1 
+                        FROM user_heart uh 
+                        WHERE uh.user_id = ? 
+                        AND uh.product_id = p.id
+                    ) AS heart
+                FROM product p
+                JOIN cart_folder_product cfp ON p.id = cfp.product_id
+                LEFT JOIN review r ON p.id = r.product_id
+                WHERE cfp.folder_id = ?
+                AND p.id > ?
+                GROUP BY p.id
+                ORDER BY p.id DESC
+                LIMIT ?`;
+            params = [userId, folderId, cursor, limit];
+        } else {
+            // cursor가 0보다 큰 경우, cursor 이전의 상품만 가져오는 쿼리
+            query = `
+                SELECT p.id AS product_id, 
+                    p.name, 
+                    p.en_price, 
+                    p.won_price, 
+                    p.image,
+                    COALESCE(AVG(r.rating), 0) AS average_rating,
+                    COALESCE(COUNT(r.id), 0) AS review_count,
+                    EXISTS(
+                        SELECT 1 
+                        FROM user_heart uh 
+                        WHERE uh.user_id = ? 
+                        AND uh.product_id = p.id
+                    ) AS heart
+                FROM product p
+                JOIN cart_folder_product cfp ON p.id = cfp.product_id
+                LEFT JOIN review r ON p.id = r.product_id
+                WHERE cfp.folder_id = ?
+                AND p.id < ?
+                GROUP BY p.id
+                ORDER BY p.id DESC
+                LIMIT ?`;
+            params = [userId, folderId, cursor, limit];
+        }
+
+        const [products] = await pool.query(query, params);
+
+
+        // 0.5 단위로 반올림하는 함수
+        const roundToNearestHalf = (num) => {
+            return Math.round(num * 2) / 2;
+        };
+
+        // 평균 평점을 0.5 단위로 반올림
+        const roundedProducts = products.map(product => ({
+            ...product,
+            average_rating: roundToNearestHalf(product.average_rating),
+            heart: product.heart === 1 // 하트 상태를 boolean으로 변환
+        }));
+
+        // nextCursor 계산: 다음 페이지의 시작점으로 마지막 product_id를 사용
+        const nextCursor = roundedProducts.length === limit 
+            ? roundedProducts[roundedProducts.length - 1].product_id 
+            : null;
 
         return {
-            count: products.length,
-            products
+            count: roundedProducts.length,
+            products: roundedProducts,
+            nextCursor // null이면 더 이상 데이터가 없음을 의미
         };
     } catch (error) {
         console.error('Error retrieving products in folder', error);
         throw error;
     }
 };
+
+
 
 // 폴더 내 상품 삭제 서비스
 export const deleteProductsFromFolder = async (folderId, productIds) => {

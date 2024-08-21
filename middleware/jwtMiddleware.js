@@ -31,6 +31,8 @@ const generateRefreshToken = (user) => {
     }
   );
   redisClient.SETEX(userId, 1209600, refreshToken);
+
+
   return refreshToken;
 };
 
@@ -77,6 +79,7 @@ const decodeAccessToken = (req, res, next) => {
       req.user_id = decodedToken.id; // 유저 정보를 req 객체에 저장
       next(); // 다음 middleware로 넘어감
     } catch (err) {
+      console.log(err);
       return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
     }
   } else {
@@ -133,3 +136,4 @@ export {
   verifyAccessToken,
   verifyRefreshToken,
 };
+
