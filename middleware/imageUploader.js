@@ -4,7 +4,6 @@ import multerS3 from 'multer-s3';
 import path from 'path';
 import dotenv from 'dotenv';
 
-// import { createUUID } from './uuid.js';
 import { BaseError } from '../config/error.js';
 import { errStatus } from '../config/errorStatus.js';
 
@@ -38,9 +37,7 @@ export const imageUploader = multer({
       if (reviewId) {
         uploadDirectory = 'review_image';
       }
-      // 여기서 uuid 써서 url 만들면 이미지 get 요청시 여기서 만든 uuid를 어떻게 url로 전달할까?
-      // const uuid = createUUID();
-      // extension 확인을 위한 코드 (확장자 검사용)
+
       if (!allowedExtensions.includes(extension)) {
         return callback(new BaseError(errStatus.WRONG_EXTENSION));
       }

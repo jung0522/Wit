@@ -1,125 +1,70 @@
-import CustomError from '../error/customError.js';
-import { errStatus } from '../error/errorStatus.js';
+import { BaseError } from '../config/error.js';
+import { errResponse, response } from '../config/response.js';
 import { createUserDto, updateUserDto } from '../dto/userDto.js';
+import { errStatus } from '../config/errorStatus.js';
+import { successStatus } from '../config/successStatus.js';
 import {
-  getAllUser,
   getOneUser,
   getOneUserByPrivateUserKey,
+  createUser,
   updateUser,
   deleteUser,
-  createUser,
 } from '../models/userDao.js';
-import { successStatus } from '../config/successStatus.js';
-import { response } from '../utils/response.js';
+import { imageUploader } from '../middleware/imageUploader.js';
 
 const createUserService = async (userData) => {
-  try {
-    const createUserData = createUserDto(userData);
-    const data = await createUser(createUserData);
-    return response(successStatus.CREATE_USER_SUCCESS, data);
-  } catch (err) {
-    throw new CustomError(
-      errStatus.INVALID_USER_DATA.statusCode,
-      errStatus.INVALID_USER_DATA.message
-    );
+  if (Object.keys(userData).length === 0 || !userData) {
+    throw new BaseError(errResponse(errStatus.INVALID_USER_DATA));
   }
-};
 
-const getAllUserService = async () => {
-  try {
-    const data = await getAllUser();
-    return response(successStatus.GET_ALL_USERS_SUCCESS, data);
-  } catch (err) {
-    throw new CustomError(
-      errStatus.INTERNAL_SERVER_ERROR.statusCode,
-      errStatus.INTERNAL_SERVER_ERROR.message
-    );
-  }
+  const createUserData = createUserDto(userData);
+  const data = await createUser(createUserData);
+  return data;
 };
 
 const getOneUserService = async (user_id) => {
-  try {
-    const data = await getOneUser(user_id);
-    if (data === null) {
-      throw new CustomError(
-        errStatus.USER_ID_IS_WRONG.statusCode,
-        errStatus.USER_ID_IS_WRONG.message
-      );
-    }
-    return response(successStatus.GET_ONE_USER_SUCCESS, data);
-  } catch (err) {
-    if (err instanceof CustomError) {
-      throw err;
-    } else {
-      throw new CustomError(
-        errStatus.INVALID_CREDENTIALS.statusCode,
-        errStatus.INVALID_CREDENTIALS.message
-      );
-    }
+  if (!user_id) {
+    throw new BaseError(errStatus.USER_ID_IS_WRONG);
   }
+
+  const data = await getOneUser(user_id);
+  return data;
 };
 
 const getOneUserByPrivateUserKeyService = async (privateUserKey) => {
-  try {
-    const data = await getOneUserByPrivateUserKey(privateUserKey);
-    if (data === null) {
-      throw new CustomError(
-        errStatus.USER_ID_IS_WRONG.statusCode,
-        errStatus.USER_ID_IS_WRONG.message
-      );
-    }
-    return data;
-  } catch (err) {
-    if (err instanceof CustomError) {
-      throw err;
-    } else {
-      throw new CustomError(
-        errStatus.INVALID_CREDENTIALS.statusCode,
-        errStatus.INVALID_CREDENTIALS.message
-      );
-    }
+  if (!privateUserKey) {
+    throw new BaseError(errStatus.USER_PRIVATE_KEY_IS_WRONG);
   }
+
+  const data = await getOneUserByPrivateUserKey(privateUserKey);
+  return data;
 };
 
 const updateUserService = async (userData, user_id) => {
-  try {
-    const updateUserData = updateUserDto(userData);
-    const data = await updateUser(updateUserData, user_id);
-    return response(successStatus.UPDATE_USER_SUCCESS, data);
-  } catch (err) {
-    if (err instanceof CustomError) {
-      throw err;
-    } else {
-      throw new CustomError(
-        errStatus.USER_ID_IS_WRONG.statusCode,
-        errStatus.USER_ID_IS_WRONG.message
-      );
-    }
+  if (Object.keys(userData).length === 0 || !userData) {
+    throw new BaseError(errStatus.INVALID_USER_DATA);
+  } else if (!user_id) {
+    throw new BaseError(errStatus.USER_ID_IS_WRONG);
   }
+
+  const updateUserData = updateUserDto(userData);
+  const data = await updateUser(updateUserData, user_id);
+  return data;
 };
 
 const deleteUserService = async (user_id) => {
-  try {
-    await deleteUser(user_id);
-    return response(successStatus.WITHDRAW_SUCCESS, null);
-  } catch (err) {
-    if (err instanceof CustomError) {
-      throw err;
-    } else {
-      throw new CustomError(
-        errStatus.USER_ID_IS_WRONG.statusCode,
-        errStatus.USER_ID_IS_WRONG.message
-      );
-    }
+  if (!user_id) {
+    throw new BaseError(errStatus.USER_ID_IS_WRONG);
   }
+  await deleteUser(user_id);
 };
 
 const updateProfileImageService = [
   imageUploader.single('image'),
-  async (req, res) => {
+  (req, res) => {
     try {
-      const { user_id } = req;
-      const file = req.file;
+      const { user_id, file } = req;
+
       const image = {
         originalName: file.originalname,
         mimeType: file.mimetype,
@@ -127,12 +72,9 @@ const updateProfileImageService = [
         url: file.location,
         user_id: user_id,
       };
-      return response(successStatus.UPLOAD_PROFILE_IMAGE_SUCCESS, image);
+      res.send(response(successStatus.UPLOAD_PROFILE_IMAGE_SUCCESS, image));
     } catch (err) {
-      throw new CustomError(
-        errStatus.UPLOAD_PROFILE_IMAGE_FAIL.statusCode,
-        errStatus.UPLOAD_PROFILE_IMAGE_FAIL.message
-      );
+      res.send(errResponse(errStatus.UPLOAD_PROFILE_IMAGE_FAIL));
     }
   },
 ];
@@ -143,18 +85,14 @@ const getProfileImageService = async (req, res) => {
       'https://wit-bucket-1.s3.ap-northeast-2.amazonaws.com/user-profile-image';
     const { user_id } = req;
     const imageUrl = `${baseUrl}/${user_id}`;
-    return response(successStatus.GET_PROFILE_IMAGE_SUCCESS, imageUrl);
+    res.send(response(successStatus.GET_PROFILE_IMAGE_SUCCESS, imageUrl));
   } catch (err) {
-    throw new CustomError(
-      errStatus.GET_PROFILE_IMAGE_FAIL.statusCode,
-      errStatus.GET_PROFILE_IMAGE_FAIL.message
-    );
+    res.send(errResponse(errStatus.GET_PROFILE_IMAGE_FAIL));
   }
 };
 
 export {
   createUserService,
-  getAllUserService,
   getOneUserService,
   getOneUserByPrivateUserKeyService,
   updateUserService,

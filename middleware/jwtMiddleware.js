@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { errResponse, response } from '../config/response.js';
 import { errStatus } from '../config/errorStatus.js';
 import { successStatus } from '../config/successStatus.js';
-import redisClient from '../config/redis-config.js';
+import { redisClient } from '../config/redis-config.js';
 dotenv.config();
 
 const generateToken = (user) => {
@@ -24,13 +24,12 @@ const generateRefreshToken = (user) => {
   let userId = String(user.user_id);
 
   const refreshToken = jwt.sign(
-    { id: userId }, // jwt.sign의 첫 번째 인자로 payload 전달
+    { id: userId },
     process.env.JWT_REFRESH_SECRET_KEY,
     {
       expiresIn: '14d',
     }
   );
-  // redis에 14일 만료기한으로 저장
   redisClient.SETEX(userId, 1209600, refreshToken);
   return refreshToken;
 };

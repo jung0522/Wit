@@ -247,10 +247,14 @@ export const errStatus = {
 
   RECENT_SEARCHES_FAILED: {
     status: 500,
-    isSuccess:false,
+    isSuccess: false,
     code: 'RECENT_SEARCHES_FAILED500',
     message: '최근 검색어 조회에 실패했습니다',
   },
-
-
+  DATABASE_ERROR: {
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+    isSuccess: false,
+    code: 'DATABASE500',
+    message: '데이터베이스에서 오류가 발생했습니다.',
+  },
 };

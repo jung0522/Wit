@@ -1,142 +1,85 @@
+import { BaseError } from '../config/BaseError.js';
 import { pool } from '../config/db-config.js';
 import { errStatus } from '../config/errorStatus.js';
-import redisClient from '../config/redis-config.js';
+import { redisClient } from '../config/redis-config.js';
 import { createUserDto, updateUserDto } from '../dto/userDto.js';
 import {
   createUserQuery,
-  findAllUserQuery,
   findUserRealIdQuery,
   findOneUserQuery,
   updateUserQuery,
   deleteUserQuery,
 } from './userQuery.js';
 
-const createUser = async (userData) => {
+const executeQuery = async (query, params, pass) => {
   const connection = await pool.getConnection();
-  try {
-    const createUser = createUserDto(userData);
-    const { id, name, nickname, gender, age, birthday, social_login } =
-      createUser;
-    const [row] = await pool.query(createUserQuery, [
-      id,
-      name,
-      nickname,
-      gender,
-      age,
-      birthday,
-      social_login,
-    ]);
 
-    if (row) {
-      const [realIdData] = await pool.query(findUserRealIdQuery, [id]);
-      const realId = realIdData[0].user_id;
-      const [result] = await pool.query(findOneUserQuery, [realId]);
-      return result[0];
-    }
-  } catch (err) {
-    console.log(err);
-  } finally {
-    if (connection) connection.release();
+  const [result] = await connection.query(query, params);
+  connection.release();
+  if (result.length === 0 && !pass) {
+    throw new BaseError(errStatus.DATABASE_ERROR);
   }
+  return result;
 };
 
-const getAllUser = async () => {
-  const connection = await pool.getConnection();
-  try {
-    const [row] = await pool.query(findAllUserQuery);
-    return row;
-  } catch (err) {
-  } finally {
-    if (connection) connection.release();
+const createUser = async (userData) => {
+  const createUser = createUserDto(userData);
+  let { id, name, nickname, gender, age, birthday, social_login } = createUser;
+  birthday = `2002${birthday}`;
+  const row = await executeQuery(createUserQuery, [
+    id,
+    name,
+    nickname,
+    gender,
+    age,
+    birthday,
+    social_login,
+  ]);
+
+  if (row) {
+    const realIdData = await executeQuery(findUserRealIdQuery, [id]);
+    const realId = realIdData[0].user_id;
+    const result = await executeQuery(findOneUserQuery, [realId]);
+    return result[0];
   }
 };
 
 const getOneUser = async (id) => {
-  const connection = await pool.getConnection();
-  try {
-    if (!id) {
-      throw new Error(errStatus.USER_ID_IS_WRONG.message);
-    }
-    const [row] = await pool.query(findOneUserQuery, [id]);
-
-    if (row.length === 0) {
-      return null;
-    }
-
-    return row[0];
-  } catch (err) {
-    throw new Error(errStatus.USER_ID_IS_WRONG.message);
-  } finally {
-    if (connection) connection.release();
-  }
+  const row = await executeQuery(findOneUserQuery, [id], true);
+  return row[0];
 };
 
 const getOneUserByPrivateUserKey = async (privateUserKey) => {
-  const connection = await pool.getConnection();
-  try {
-    const [row] = await pool.query(findUserRealIdQuery, [privateUserKey]);
-    if (row.length === 0) {
-      return null;
-    }
-
-    return row[0];
-  } catch (err) {
-    throw new Error(errStatus.USER_ID_IS_WRONG.message);
-  } finally {
-    if (connection) connection.release();
-  }
+  const row = await executeQuery(findUserRealIdQuery, [privateUserKey], true);
+  return row[0];
 };
 
 const updateUser = async (userData, user_id) => {
-  const connection = await pool.getConnection();
-  try {
-    const updateUser = updateUserDto(userData);
-    const { username, usernickname, gender, age, birth, user_id } = updateUser;
-
-    const [row] = await pool.query(updateUserQuery, [
-      username,
-      usernickname,
-      gender,
-      age,
-      birth,
-      user_id,
-    ]);
-
-    if (row.warningStatus === 1) {
-      throw new Error(errStatus.USER_ID_IS_WRONG.message);
-    }
-
-    if (row) {
-      const [result] = await pool.query(findOneUserQuery, [user_id]);
-      return result[0];
-    }
-  } catch (err) {
-    throw new Error(errStatus.USER_ID_IS_WRONG.message);
-  } finally {
-    if (connection) connection.release();
+  const updateUser = updateUserDto(userData);
+  const { username, usernickname, gender, age, birth } = updateUser;
+  const row = await executeQuery(updateUserQuery, [
+    username,
+    usernickname,
+    gender,
+    age,
+    birth,
+    user_id,
+  ]);
+  if (row.warningStatus === 1) {
+    throw new BaseError(errStatus.DATABASE_ERROR);
   }
+  const result = await executeQuery(findOneUserQuery, [user_id]);
+  return result[0];
 };
 
 const deleteUser = async (id) => {
-  const connection = await pool.getConnection();
-  try {
-    const [row] = await pool.query(deleteUserQuery, [id]);
-    if (!id) {
-      throw new Error(errStatus.USER_ID_IS_WRONG.message);
-    }
-    // 로그아웃 로직
-    await redisClient.del(id);
-    return row;
-  } catch (err) {
-    console.log(err);
-  } finally {
-    if (connection) connection.release();
-  }
+  const row = await executeQuery(deleteUserQuery, [id]);
+  await redisClient.del(id);
+  return row;
 };
 
 export {
   createUser,
-  getAllUser,
   getOneUser,
   getOneUserByPrivateUserKey,
   updateUser,
