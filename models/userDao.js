@@ -1,7 +1,7 @@
 import { pool } from '../config/db-config.js';
 import { errStatus } from '../config/errorStatus.js';
 import redisClient from '../config/redis-config.js';
-
+import { createUserDto, updateUserDto } from '../dto/userDto.js';
 import {
   createUserQuery,
   findAllUserQuery,
@@ -14,17 +14,9 @@ import {
 const createUser = async (userData) => {
   const connection = await pool.getConnection();
   try {
-    const { id, name, nickname, age, social_login } = userData;
-    let { gender, birthday } = userData;
-    if (!name || !nickname || !gender || !age || !birthday || !social_login) {
-      throw new Error(errStatus.INVALID_USER_DATA.message);
-    }
-    if (gender === 'M') {
-      gender = 'male';
-    } else if (gender === 'F') {
-      gender = 'female';
-    }
-    birthday = `2002${birthday}`;
+    const createUser = createUserDto(userData);
+    const { id, name, nickname, gender, age, birthday, social_login } =
+      createUser;
     const [row] = await pool.query(createUserQuery, [
       id,
       name,
@@ -97,31 +89,26 @@ const getOneUserByPrivateUserKey = async (privateUserKey) => {
 
 const updateUser = async (userData, user_id) => {
   const connection = await pool.getConnection();
-  const { username, usernickname, gender, age, birth } = userData;
   try {
-    if (!username || !usernickname || !gender || !age || !birth) {
-      throw new Error(errStatus.INVALID_USER_DATA.message);
+    const updateUser = updateUserDto(userData);
+    const { username, usernickname, gender, age, birth, user_id } = updateUser;
+
+    const [row] = await pool.query(updateUserQuery, [
+      username,
+      usernickname,
+      gender,
+      age,
+      birth,
+      user_id,
+    ]);
+
+    if (row.warningStatus === 1) {
+      throw new Error(errStatus.USER_ID_IS_WRONG.message);
     }
 
-    if (user_id !== undefined) {
-      const [row] = await pool.query(updateUserQuery, [
-        username,
-        usernickname,
-        gender,
-        age,
-        birth,
-        user_id,
-      ]);
-
-      if (row.warningStatus === 1) {
-        console.log(1);
-        throw new Error(errStatus.USER_ID_IS_WRONG.message);
-      }
-
-      if (row) {
-        const [result] = await pool.query(findOneUserQuery, [user_id]);
-        return result[0];
-      }
+    if (row) {
+      const [result] = await pool.query(findOneUserQuery, [user_id]);
+      return result[0];
     }
   } catch (err) {
     throw new Error(errStatus.USER_ID_IS_WRONG.message);
