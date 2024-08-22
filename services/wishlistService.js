@@ -146,7 +146,7 @@ export const getProductsInCart = async (userId, cursor = 1, limit = 10) => {
                         FROM user_heart uh 
                         WHERE uh.user_id = ? AND uh.product_id = p.id
                     ) AS heart,
-                    ROW_NUMBER() OVER (ORDER BY p.id) AS row_num
+                    ROW_NUMBER() OVER (ORDER BY p.created_at DESC, p.id DESC) AS row_num
                 FROM product p
                 JOIN cart_folder_product cfp ON p.id = cfp.product_id
                 JOIN folder f ON cfp.folder_id = f.id
@@ -202,6 +202,7 @@ export const getProductsInCart = async (userId, cursor = 1, limit = 10) => {
     }
 };
 
+
 // 유저가 생성한 폴더 조회 서비스
 export const getUserFoldersFromDb = async (userId, cursor = 1, limit = 10) => {
     try {
@@ -221,7 +222,7 @@ export const getUserFoldersFromDb = async (userId, cursor = 1, limit = 10) => {
                 SELECT
                     f.id AS folder_id,
                     f.name AS folder_name,
-                    ROW_NUMBER() OVER (ORDER BY f.id) AS row_num
+                    ROW_NUMBER() OVER (ORDER BY f.created_at DESC, f.id DESC) AS row_num
                 FROM folder f
                 WHERE f.user_id = ?
             )
@@ -383,7 +384,7 @@ export const getProductsInFolderFromDb = async (folderId, userId, cursor = 1, li
                         WHERE uh.user_id = ?
                         AND uh.product_id = p.id
                     ) AS heart,
-                    ROW_NUMBER() OVER (ORDER BY p.id) AS row_num
+                    ROW_NUMBER() OVER (ORDER BY p.created_at DESC, p.id DESC) AS row_num
                 FROM product p
                 JOIN cart_folder_product cfp ON p.id = cfp.product_id
                 LEFT JOIN review r ON p.id = r.product_id
@@ -423,7 +424,7 @@ export const getProductsInFolderFromDb = async (folderId, userId, cursor = 1, li
             };
         });
 
-        // 전체 제품 수 
+        // 전체 제품 수
         const total_count = products.length > 0 ? products[0].total_count : 0;
 
         // nextCursor 계산: cursor + limit
@@ -439,6 +440,8 @@ export const getProductsInFolderFromDb = async (folderId, userId, cursor = 1, li
         throw error;
     }
 };
+
+
 
 // 폴더에서 제품 삭제 함수
 export const deleteProductsFromFolder = async (folderId, productIds) => {
