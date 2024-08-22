@@ -1,3 +1,4 @@
+import { generateToken } from '../middleware/jwtMiddleware.js';
 import {
     getProductsInCart,
     createFolderWithProducts,
@@ -18,6 +19,8 @@ export const getWishlist = async (req, res) => {
         if (!user_id) {
             return res.status(400).json({ message: 'user_id is required' });
         }
+
+        const token = generateToken(user_id);
 
         const result = await getProductsInCart(user_id, cursor, parseInt(limit, 10) || 10);
 
