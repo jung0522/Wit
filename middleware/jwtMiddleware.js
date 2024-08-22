@@ -17,6 +17,7 @@ const generateToken = (user) => {
       // expiresIn: '1h',
     }
   );
+
   return accessToken;
 };
 
@@ -30,8 +31,8 @@ const generateRefreshToken = (user) => {
       expiresIn: '14d',
     }
   );
-  redisClient.SETEX(userId, 1209600, refreshToken);
 
+  redisClient.SETEX(userId, 1209600, refreshToken);
 
   return refreshToken;
 };
