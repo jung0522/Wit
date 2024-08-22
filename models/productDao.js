@@ -35,6 +35,7 @@ export const getALLProductByALLCategory = async (count) => {
                   won_price: product.won_price,
                   en_price: product.en_price,
                   image: product.image,
+                  sales_area : product.sales_area,
                   wish_count: product.wish_count,
                   is_heart: product.is_heart ? true : false, // is_heart가 true일 경우 true, 아니면 false
                   review_count : product.review_count ? 0 : 0,
@@ -64,53 +65,69 @@ function getCategoryIdByName(categoryName) {
 }
 
 
-// 카테고리별 인기 있는 상품 가져오기
-export const getPopularProductsByCategory = async (category, count) => {
-  const connection = await pool.getConnection(); // 데이터베이스 연결
-  try {
-      let rows;
-      
-      if (parseInt(category) === 0) { // 전체 카테고리 인기 상품
-          rows = await pool.query(getPopularProductsByALLCategoryQuery, [parseInt(count, 10)]);
-      } else { // 특정 카테고리 인기 상품
-          rows = await pool.query(getPopularProductsByCategoryQuery, [parseInt(category, 10), parseInt(count, 10)]);
-      }
+export const getPopularProductsByCategory = async (category, count, cursor = null) => {
+    const connection = await pool.getConnection(); // 데이터베이스 연결
+    try {
+        let rows;
+        
+        if (parseInt(category) === 0) { // 전체 카테고리 인기 상품
+            if (cursor) {
+                rows = await connection.query(getPopularProductsByCategoryQuery, [cursor, parseInt(count, 10)]);
+            } else {
+                rows = await connection.query(getPopularProductsByALLCategoryQuery, [parseInt(count, 10)]);
+            }
+        } else { // 특정 카테고리 인기 상품
+            if (cursor) {
+                rows = await connection.query(getPopularProductsByCategoryQuery, [parseInt(category, 10), cursor, parseInt(count, 10)]);
+            } else {
+                rows = await connection.query(getPopularProductsByCategoryQuery, [parseInt(category, 10), parseInt(count, 10)]);
+            }
+        }
 
-      // rows는 2차원 배열로 반환되므로 첫 번째 배열 요소만 사용
-      const products = rows[0];
+        const products = rows[0];
 
-      // 데이터 구조를 카테고리별로 그룹화하여 반환
-      const groupedProducts = {};
-      products.forEach(product => {
+        // 데이터 구조를 카테고리별로 그룹화하여 반환
+        const groupedProducts = {};
+        let lastCursor = null;  // 새로운 커서
 
-        let categoryName ;
-        if (parseInt(category) === 0) categoryName="ALL"
-        else categoryName = product.main_category_name;
+        products.forEach(product => {
+            let categoryName;
+            if (parseInt(category) === 0) categoryName = "ALL";
+            else categoryName = product.main_category_name;
 
-          if (!groupedProducts[categoryName]) {
-              groupedProducts[categoryName] = [];
-          }
-          groupedProducts[categoryName].push({
-              id: product.product_id,
-              name: product.product_name,
-              won_price: product.won_price,
-              en_price: product.en_price,
-              image: product.image,
-              wish_count: product.wish_count,
-              is_heart: product.is_heart ? true : false, // is_heart가 true일 경우 true, 아니면 false
-              review_count : product.review_count ? 0 : 0,
-              review_avg : product.average_rating ? 0 : 0
-          });
-      });
+            if (!groupedProducts[categoryName]) {
+                groupedProducts[categoryName] = [];
+            }
+            
+            groupedProducts[categoryName].push({
+                id: product.product_id,
+                name: product.product_name,
+                won_price: product.won_price,
+                en_price: product.en_price,
+                image: product.image,
+                wish_count: product.wish_count,
+                is_heart: product.is_heart ? true : false, // is_heart가 true일 경우 true, 아니면 false
+                review_count: product.review_count || 0,
+                review_avg: product.average_rating || 0
+            });
 
-      return groupedProducts;
-  } catch (error) {
-      console.error("Error fetching popular products by category:", error);
-      throw new Error('Internal Server Error');
-  } finally {
-      if (connection) connection.release(); // 연결 해제
-  }
+            lastCursor = product.product_id; // 다음 커서로 사용할 마지막 상품 ID
+        });
+
+        return {
+            groupedProducts,
+            cursor: lastCursor,  // 다음 요청에서 사용할 수 있는 커서 반환
+        };
+    } catch (error) {
+        console.error("Error fetching popular products by category:", error);
+        throw new Error('Internal Server Error');
+    } finally {
+        if (connection) connection.release(); // 연결 해제
+    }
 };
+
+
+  
 
 // 냠냠 인기 있는 상품 가져오기
 export const getNyamRecommendByUser = async (count) => {

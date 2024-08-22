@@ -7,6 +7,7 @@ SELECT
     p.won_price,
     p.en_price,
     p.image,
+    p.sales_area,
     COUNT(wish.product_id) AS wish_count,
     mc.main_category_name,
     CASE WHEN user_heart.product_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_heart,
@@ -26,13 +27,12 @@ LEFT JOIN
     review r ON p.id = r.product_id
 WHERE
     mc.main_category_id = ?
+    AND p.id > ?  -- 커서 조건 추가
 GROUP BY
     p.id, p.name, p.won_price, p.en_price, p.image, mc.main_category_name, user_heart.product_id
 ORDER BY
     wish_count DESC
 LIMIT ?;
-
-
 `;
 
 //특정 카테고리 별로 상품 불러오기 이거 써야함
@@ -72,6 +72,7 @@ SELECT
     p.won_price,
     p.en_price,
     p.image,
+    p.sales_area,
     COUNT(wish.product_id) AS wish_count
 FROM 
     product p

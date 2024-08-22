@@ -53,34 +53,29 @@ export const getHome = async (count,userId) => {
 
 }
 
-export const getProductByCategoryID = async (category,count,userId) => {
+export const getProductByCategoryID = async (category, count, userId, cursor) => {
     try {
-       console.log("asdasdasd")
-       console.log(category,count)
-       
-       
-        //get userId logic
-        //get products By userId
-        //get  notice
-       
+        console.log("Fetching products for category:", category, "with count:", count, "and cursor:", cursor);
 
+        // 유저 정보 가져오는 로직 (예시로 빈 객체를 반환)
+        const userInfo = await getOneUser(userId); // 실제 유저 정보 가져오는 로직을 추가할 수 있습니다.
 
-       // 카테고리별 인기 상품 가져오기
-       const userInfo = await getOneUser(userId);
-       const PopularProductsResponse = await getPopularProductsByCategory(category,count);
+        // 카테고리별 인기 상품 가져오기
+        const { groupedProducts, cursor: newCursor } = await getPopularProductsByCategory(category, count, cursor);
 
         // 메인 홈 응답 구성
         return {
-                user : userInfo,
-                popularProducts: PopularProductsResponse,            
+            user: userInfo,
+            groupedProducts, // 카테고리별로 그룹화된 인기 상품
+            cursor: newCursor // 다음 페이지로의 커서 정보
         };
 
     } catch (error) {
-        console.error('Failed to update home', error);
-
+        console.error('Failed to fetch products by category', error);
+        throw new Error('Internal Server Error');
     }
+};
 
-}
 
 
 
