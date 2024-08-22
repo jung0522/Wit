@@ -171,14 +171,14 @@ export const getProductsInCart = async (userId, cursor = 1, limit = 10) => {
             };
         });
 
-        // 전체 제품 수 (total_count를 사용하되 반환하지 않음)
+        // 전체 제품 수 
         const total_count = products.length > 0 ? products[0].total_count : 0;
 
         // nextCursor 계산: cursor + limit, total_count보다 작은지 확인
         const nextCursor = (roundedProducts.length === intLimit && intCursor + intLimit <= total_count) ? intCursor + intLimit : null;
 
         return {
-            count: roundedProducts.length,
+            count:  total_count,
             products: roundedProducts,
             nextCursor
         };
@@ -228,7 +228,7 @@ export const getUserFoldersFromDb = async (userId, cursor = 1, limit = 10) => {
 
         if (folders.length === 0) {
             // 폴더가 없는 경우
-            return { count: 0, folders: [], nextCursor: null };
+            return { count: total_count, folders: [], nextCursor: null };
         }
 
         // 3단계: 각 폴더에 대한 제품 이미지와 제품 수 조회
@@ -267,7 +267,7 @@ export const getUserFoldersFromDb = async (userId, cursor = 1, limit = 10) => {
             : null;
 
         return {
-            count: foldersWithProducts.length,
+            count: total_count, // 전체 폴더 수를 반환
             folders: foldersWithProducts,
             nextCursor // null이면 더 이상 가져올 폴더가 없음을 의미
         };
@@ -276,6 +276,7 @@ export const getUserFoldersFromDb = async (userId, cursor = 1, limit = 10) => {
         throw error;
     }
 };
+
 
 
 
@@ -381,14 +382,14 @@ export const getProductsInFolderFromDb = async (folderId, userId, cursor = 1, li
             };
         });
 
-        // 전체 제품 수 (total_count를 사용하되 반환하지 않음)
+        // 전체 제품 수 
         const total_count = products.length > 0 ? products[0].total_count : 0;
 
         // nextCursor 계산: cursor + limit
         const nextCursor = (roundedProducts.length === intLimit && intCursor + intLimit <= total_count) ? intCursor + intLimit : null;
 
         return {
-            count: roundedProducts.length,
+            count: total_count,
             products: roundedProducts,
             nextCursor // null이면 더 이상 데이터가 없음을 의미
         };
