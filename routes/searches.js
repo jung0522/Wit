@@ -24,7 +24,7 @@ const router = express.Router();
 
 // 기념품 키워드 검색 기능
 router.get('/', decodeAccessToken, async (req, res) => {
-  const { query, category, sort,  limit = 10, cursor=0 } = req.query; 
+  const { query, category, sort,  limit=10 , cursor=0 } = req.query; 
   const { user_id }=req; // 검색 기능에서도 검증해야함
   
   
@@ -80,7 +80,9 @@ router.get('/', decodeAccessToken, async (req, res) => {
       cursor,
       limit,
     );
-    const nextCursor= products.length === limit? Number(cursor)+ products.length: null;
+    const nextCursor = products.length > 0 && products.length === parseInt(limit) 
+    ? products[products.length - 1].row_num 
+    : null;
  
 
     const result = {
