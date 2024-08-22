@@ -1,7 +1,11 @@
 import passport from 'passport';
 
 import { Strategy as KakaoStrategy } from 'passport-kakao';
-import { getOneUserByPrivateUserKey, createUser } from '../models/userDao.js';
+
+import {
+  getOneUserByPrivateUserKeyService,
+  createUserService,
+} from '../services/userService.js';
 import { errStatus } from '../config/errorStatus.js';
 import {
   generateToken,
@@ -20,7 +24,9 @@ const kakaoStrategy = () => {
           const privateUserKey = profile._json.id;
           const rawUserData = profile._json.kakao_account;
           // 기존 사용자 조회
-          const exUser = await getOneUserByPrivateUserKey(privateUserKey);
+          const exUser = await getOneUserByPrivateUserKeyService(
+            privateUserKey
+          );
 
           if (exUser) {
             // 사용자 존재 시
@@ -53,14 +59,13 @@ const kakaoStrategy = () => {
               gender,
               social_login: 'kakao',
             };
-            const newUser = await createUser(userData);
+            const newUser = await createUserService(userData);
             const { user_id } = newUser;
             const accessToken = generateToken(newUser);
             const refreshToken = generateRefreshToken(newUser);
             return done(null, newUser, { user_id, accessToken, refreshToken });
           }
         } catch (error) {
-          console.log(error);
           done(error, false, {
             status: errStatus.INTERNAL_SERVER_ERROR,
           });

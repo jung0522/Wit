@@ -1,7 +1,7 @@
-
 //카테고리 별로 가져오기
 export const getPopularProductsByCategoryQuery = `
 SELECT
+    p.sales_area,
     p.id AS product_id,
     p.name AS product_name,
     p.won_price,
@@ -36,7 +36,7 @@ LIMIT ?;
 `;
 
 //특정 카테고리 별로 상품 불러오기 이거 써야함
-export const getPopularProductsByEachCategoryQuery=`
+export const getPopularProductsByEachCategoryQuery = `
 SELECT 
     p.id AS product_id,
     p.name AS product_name,
@@ -61,11 +61,10 @@ ORDER BY
     wish_count DESC
 LIMIT ?;
 
-`
-
+`;
 
 //전체로 가져오기
-export const getPopularProductsByALLCategoryQuery=`
+export const getPopularProductsByALLCategoryQuery = `
 SELECT 
     p.id AS product_id,
     p.name AS product_name,
@@ -85,9 +84,9 @@ ORDER BY
 LIMIT ?;
 
 
-`
+`;
 
-export const getNyamRecommendQuery=`
+export const getNyamRecommendQuery = `
 SELECT
     p.id AS product_id,
     p.name AS product_name,
@@ -118,4 +117,4 @@ GROUP BY
 ORDER BY
     wish_count DESC
 LIMIT 20;
-`
+`;
