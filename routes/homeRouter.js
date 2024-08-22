@@ -27,7 +27,7 @@ homeRouter.get('/', decodeAccessToken,async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch products' });
     }
 });
-homeRouter.get('/category', async (req, res) => {
+homeRouter.get('/category',decodeAccessToken,async (req, res) => {
     // main_categoryID와 category를 통해 가져올 count 및 cursor
     const { category, count, cursor } = req.query;
     console.log(category, count, cursor);
