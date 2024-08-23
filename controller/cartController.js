@@ -4,15 +4,15 @@ import { addProductToCart, removeProductFromCart } from '../services/cartService
 // 장바구니에 제품을 추가하는 API 핸들러
 export const addToCart = async (req, res) => {
     try {
+        const productId = req.params.productId; // URL 파라미터에서 제품 ID 가져오기
         const user_id = req.user_id; // 인증된 요청에서 사용자 ID 가져오기
-        const { product_ids } = req.body;
 
-        if (!user_id || !product_ids) {
+        if (!user_id || !productId) {
             return res.status(400).json({ message: 'user_id, folder_id, and product_ids are required' });
         }
 
         // 제품을 장바구니에 추가
-        const productData = await addProductToCart(user_id, product_ids);
+        const productData = await addProductToCart(user_id, productId);
 
         // 성공적인 응답 반환
         res.status(200).json({ 
