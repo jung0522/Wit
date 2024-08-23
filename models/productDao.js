@@ -6,7 +6,7 @@ import {getPopularProductsByCategoryQuery,getPopularProductsByALLCategoryQuery,g
 
 
 // 카테고리별 인기 있는 상품을 한 번에 가져오기
-export const getALLProductByALLCategory = async (count,userId, cursor = null) => {
+export const getALLProductByALLCategory = async (count=3,userId, cursor = null) => {
   const connection = await pool.getConnection(); // 데이터베이스 연결
   try {
       const categories = ['ALL', '식품', '뷰티코스메틱', '의약품', '생활용품'];
@@ -65,22 +65,16 @@ function getCategoryIdByName(categoryName) {
 }
 
 
-export const getPopularProductsByCategory = async (category, count, cursor = null) => {
+export const getPopularProductsByCategory = async (userId, category, count, cursor = null) => {
     const connection = await pool.getConnection(); // 데이터베이스 연결
     try {
         let rows;
         
         if (parseInt(category) === 0) { // 전체 카테고리 인기 상품
-            if (cursor) {
-                rows = await connection.query(getPopularProductsByCategoryQuery, [cursor, parseInt(count, 10)]);
-            } else {
-                rows = await connection.query(getPopularProductsByALLCategoryQuery, [parseInt(count, 10)]);
-            }
+                rows = await connection.query(getPopularProductsByALLCategoryQuery);
         } else { // 특정 카테고리 인기 상품
             if (cursor) {
-                rows = await connection.query(getPopularProductsByCategoryQuery, [parseInt(category, 10), cursor, parseInt(count, 10)]);
-            } else {
-                rows = await connection.query(getPopularProductsByCategoryQuery, [parseInt(category, 10), parseInt(count, 10)]);
+                rows = await connection.query(getPopularProductsByCategoryQuery, [userId,parseInt(category, 10), cursor, parseInt(count, 10)]);
             }
         }
 
@@ -150,10 +144,12 @@ export const getNyamRecommendByUser = async (count) => {
 
 
 // 유저 추천 상품 가져오기
-export const getRecommendForUser = async (userId, count) => {
+export const getRecommendForUser = async (userId, count=20) => {
     const connection = await pool.getConnection(); // 데이터베이스 연결
     try {
+        console.log(userId,count)
         const [rows] = await pool.query(getRecommendUserQuery, [parseInt(userId, 10), parseInt(count, 10)]);
+        
         return rows;
     } catch (error) {
         console.error("Error fetching recommended products by user:", error);
