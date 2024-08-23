@@ -37,9 +37,9 @@ export const getALLProductByALLCategory = async (count=3,userId, cursor = null) 
                   image: product.image,
                   sales_area : product.sales_area,
                   wish_count: product.wish_count,
-                  is_heart: product.is_heart ? true : false, // is_heart가 true일 경우 true, 아니면 false
-                  review_count : product.review_count ? 0 : 0,
-                  review_avg : product.average_rating ? 0 : 0
+                  is_heart: product.is_heart == 1 ? true : false,
+                  review_count : product.review_count == 0? 0 : product.review_coun,
+                  review_avg : product.average_rating == 0? 0 : product.average_rating
               });
           });
       }
@@ -100,7 +100,7 @@ export const getPopularProductsByCategory = async (userId, category, count=20, c
                 en_price: product.en_price,
                 image: product.image,
                 wish_count: product.wish_count,
-                is_heart: product.is_heart ? true : false, // is_heart가 true일 경우 true, 아니면 false
+                is_heart: product.is_heart == 1 ? true : false,
                 review_count: product.review_count || 0,
                 review_avg: product.average_rating || 0
             });
