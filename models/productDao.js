@@ -153,10 +153,10 @@ export const getRecommendForUser = async (userId, count=10) => {
         const products = rows[0];
         const groupedProducts = {};
         // "userRecommend" 배열을 먼저 초기화
-        groupedProducts["userRecommend"] = [];
+        groupedProducts = [];
         console.log("products:", products)
         products.forEach(product => {
-            groupedProducts["userRecommend"].push({
+            groupedProducts.push({
                 id: product.product_id,
                 name: product.product_name,
                 won_price: product.won_price,
