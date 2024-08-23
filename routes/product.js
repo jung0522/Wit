@@ -10,6 +10,8 @@ const router = Router();
 
 // 제품 상세 정보 불러오기
 router.get('/:productId',decodeAccessToken, async (req, res) => {
+  
+  const user_id = req.user_id; // Extract user_id from request object
   const { productId } = req.params;
 
   try {
@@ -18,8 +20,8 @@ router.get('/:productId',decodeAccessToken, async (req, res) => {
     }
 
     // 제품 정보 가져오기
-    const productQuery = 'SELECT * FROM product WHERE id = ?';
-    const [product] = await pool.query(productQuery, [productId]);
+    const productQuery = 'SELECT p.*, CASE WHEN user_heart.product_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_heart FROM product p LEFT JOIN mine wish ON p.id = wish.product_id LEFT JOIN user_heart ON p.id = user_heart.product_id AND user_heart.user_id = 66 WHERE p.id = 1;';
+    const [product] = await pool.query(productQuery, [productId], user_id);
 
     if (product.length === 0) {
       throw new NotFoundError();

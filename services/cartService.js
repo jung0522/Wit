@@ -133,6 +133,12 @@ export const removeProductFromCart = async (userId, productIds) => {
             WHERE folder_id = ? AND product_id IN (${placeholders})`;
         
         await pool.query(queryDelete, [folderId, ...productIds]);
+
+        const queryDelete2 = 
+            `DELETE FROM user_heart
+            WHERE user_id = ? AND product_id IN (${placeholders})`;
+        
+        await pool.query(queryDelete2, [userId, ...productIds]);
         
         return {
             message: '제품이 성공적으로 삭제되었습니다.',

@@ -17,7 +17,7 @@ export const getALLProductByALLCategory = async (count=3,userId, cursor = null) 
           let rows;
 
           if (category === 'ALL') { // 전체 카테고리 인기 상품
-              [rows] = await pool.query(getPopularProductsByALLCategoryQuery, [parseInt(count, 10)]);
+              [rows] = await pool.query(getPopularProductsByALLCategoryQuery, [userId, parseInt(count, 10)]);
           } else { // 특정 카테고리 인기 상품
               // 특정 카테고리 ID를 매핑 (예: 식품 = 1, 뷰티코스메틱 = 2 등)
               const categoryId = getCategoryIdByName(category);
@@ -71,7 +71,7 @@ export const getPopularProductsByCategory = async (userId, category, count=20, c
         let rows;
         
         if (parseInt(category) === 0) { // 전체 카테고리 인기 상품
-                rows = await connection.query(getPopularProductsByALLCategoryQuery,[parseInt(count,10)]);
+                rows = await connection.query(getPopularProductsByALLCategoryQuery,[userId, parseInt(count,10)]);
         } else { // 특정 카테고리 인기 상품
             if (cursor) {
                 rows = await connection.query(getPopularProductsByCategoryQuery, [userId,parseInt(category, 10), cursor, parseInt(count, 10)]);
@@ -148,8 +148,25 @@ export const getRecommendForUser = async (userId, count=10) => {
     const connection = await pool.getConnection(); // 데이터베이스 연결
     try {
         console.log(userId,count)
-        const [rows] = await pool.query(getRecommendUserQuery, [parseInt(userId, 10), parseInt(count, 10)]);
-        
+        const rows = await pool.query(getRecommendUserQuery, [parseInt(userId, 10), parseInt(userId, 10)]);
+        // 현재 카테고리의 상품 목록을 담을 배열 초기화
+        const products = rows[0];
+        const groupedProducts = {};
+        // "userRecommend" 배열을 먼저 초기화
+        groupedProducts["userRecommend"] = [];
+        products.forEach(product => {
+            groupedProducts["userRecommend"].push({
+                id: product.product_id,
+                name: product.product_name,
+                won_price: product.won_price,
+                en_price: product.en_price,
+                image: product.image,
+                sub_category_name: product.sub_category_name,
+                review_count : product.review_count == 0? 0 : product.review_coun,
+                review_avg : product.average_rating == 0? 0 : product.average_rating,
+                is_heart: product.is_heart == 1 ? true : false
+            });
+        });
         return rows;
     } catch (error) {
         console.error("Error fetching recommended products by user:", error);

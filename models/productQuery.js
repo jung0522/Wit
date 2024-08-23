@@ -73,13 +73,17 @@ SELECT
     p.en_price,
     p.image,
     p.sales_area,
-    COUNT(wish.product_id) AS wish_count
+    COUNT(wish.product_id) AS wish_count,
+    CASE WHEN user_heart.product_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_heart
 FROM 
     product p
 LEFT JOIN 
     mine wish ON p.id = wish.product_id
+LEFT JOIN
+    user_heart ON p.id = user_heart.product_id AND user_heart.user_id = ?
 GROUP BY 
-    p.id
+    p.id, 
+    user_heart.product_id
 ORDER BY 
     wish_count DESC
 LIMIT ?;
@@ -149,11 +153,16 @@ ProductsWithRating AS (
         p.image,
         scm.sub_category_name,
         COALESCE(AVG(r.rating), 0) AS average_rating,
-        COUNT(r.id) AS review_count  
+        COUNT(r.id) AS review_count,
+        CASE WHEN user_heart.product_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_heart
     FROM
         product p
     LEFT JOIN
         review r ON p.id = r.product_id
+    LEFT JOIN
+        mine wish ON p.id = wish.product_id
+    LEFT JOIN
+        user_heart ON p.id = user_heart.product_id AND user_heart.user_id = ?
     JOIN
         sub_category sc ON p.sub_category_id = sc.sub_category_id
     JOIN
@@ -164,7 +173,8 @@ ProductsWithRating AS (
         p.won_price,
         p.en_price,
         p.image,
-        scm.sub_category_name
+        scm.sub_category_name, 
+        user_heart.product_id
 )
 
 

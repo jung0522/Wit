@@ -26,6 +26,8 @@ homeRouter.get('/',decodeAccessToken,async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch products' });
     }
 });
+
+//홈 카테고리 별로 상품 가져오기
 homeRouter.get('/category',decodeAccessToken,async (req, res) => {
     // main_categoryID와 category를 통해 가져올 count 및 cursor
     const { category, cursor } = req.query;
@@ -46,8 +48,7 @@ homeRouter.get('/category',decodeAccessToken,async (req, res) => {
     }
 });
 
-
-
+// 냠냠 맛도리
 homeRouter.get('/nyam',decodeAccessToken, async (req, res) => {
     try {
         const { count } = req.query;
@@ -61,6 +62,8 @@ homeRouter.get('/nyam',decodeAccessToken, async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch products' });
     }
 });
+
+//유저 추천 제품 불러오기
 homeRouter.get('/recommend',decodeAccessToken, async (req, res) => {
     try {
         const { count } = req.query;

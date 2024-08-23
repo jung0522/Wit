@@ -17,7 +17,7 @@ export const getHome = async (userId) => {
 
        let count = 20;
        let cursor=1
-       // 카테고리별 인기 상품 가져오기
+       // 유저 정보 가져오기
        const userInfo = await getOneUser(userId);
        
        // 유저에 대한 추천 상품 가져오기
