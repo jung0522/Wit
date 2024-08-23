@@ -9,7 +9,7 @@ import {decodeAccessToken} from '../middleware/jwtMiddleware.js';
 const router = Router();
 
 // 제품 상세 정보 불러오기
-router.get('/:productId',decodeAccessToken, async (req, res) => {
+router.get('/:productId', decodeAccessToken, async (req, res) => {
   
   const { user_id } = req; // 디코딩된 토큰에서 user_id 사용
   const { productId } = req.params;
@@ -22,15 +22,15 @@ router.get('/:productId',decodeAccessToken, async (req, res) => {
     // 제품 정보 가져오기
     const productQuery = `
     SELECT p.*, 
-          CASE WHEN user_heart.product_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_heart 
+           CASE WHEN user_heart.product_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_heart,
+           (SELECT COUNT(*) FROM user_heart WHERE product_id = p.id) AS heart_count  -- 하트 수 추가
     FROM product p 
     LEFT JOIN mine wish ON p.id = wish.product_id 
     LEFT JOIN user_heart ON p.id = user_heart.product_id AND user_heart.user_id = ? 
     WHERE p.id = ?;
 `;
 
-const [product] = await pool.query(productQuery, [user_id, productId]);
-
+    const [product] = await pool.query(productQuery, [user_id, productId]);
 
     if (product.length === 0) {
       throw new NotFoundError();
@@ -79,12 +79,18 @@ const [product] = await pool.query(productQuery, [user_id, productId]);
         review_count: reviewStats[0].review_count || 0,
         latest_review_images: latestReviewImages,
         top_reviews: topReviews,
+        heart_count: product[0].heart_count || 0  // 하트 수 포함
       }
     );
 
     return res.status(200).json(responseData);
   } catch (err) {
     console.log(err);
+    return res.status(500).json({
+      isSuccess: false,
+      code: 500,
+      message: '제품 정보를 불러오는 중 오류가 발생했습니다.',
+    });
   }
 });
 
