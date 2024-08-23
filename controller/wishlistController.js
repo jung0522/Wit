@@ -1,3 +1,4 @@
+// controller/wishlistController.js
 import {
     getProductsInCart,
     createFolderWithProducts,
@@ -12,8 +13,8 @@ import {
 // 장바구니에서 제품 목록 조회
 export const getWishlist = async (req, res) => {
     try {
-        const { user_id } = req.params;
         const { cursor, limit } = req.query; // cursor와 limit을 쿼리 파라미터에서 받음
+        const user_id = req.user_id; // Extract user_id from request object
 
         if (!user_id) {
             return res.status(400).json({ message: 'user_id is required' });
@@ -30,12 +31,11 @@ export const getWishlist = async (req, res) => {
     }
 };
 
-
 // 유저가 생성한 폴더 조회
 export const getUserFolders = async (req, res) => {
     try {
-        const { user_id } = req.params;
         const { cursor, limit } = req.query; // 커서와 limit을 쿼리 파라미터에서 받음
+        const user_id = req.user_id; // Extract user_id from request object
 
         if (!user_id) {
             return res.status(400).json({ message: 'user_id is required' });
@@ -51,11 +51,12 @@ export const getUserFolders = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving folders', error: error.message });
     }
 };
+
 // 폴더 생성
 export const createFolder = async (req, res) => {
     try {
-        const { user_id } = req.params;
         const { product_ids, folder_name } = req.body;
+        const user_id = req.user_id; // Extract user_id from request object
 
         if (!user_id || !product_ids || !folder_name) {
             return res.status(400).json({ message: 'user_id, product_ids, and folder_name are required' });
@@ -72,8 +73,8 @@ export const createFolder = async (req, res) => {
 // 폴더 or 폴더들에 제품 추가
 export const addProductsToFoldersController = async (req, res) => {
     try {
-        const { user_id } = req.params;
         const { folder_id, product_ids } = req.body;
+        const user_id = req.user_id; // Extract user_id from request object
 
         if (!user_id || !folder_id || !product_ids) {
             return res.status(400).json({ message: 'user_id, folder_id, 그리고 product_ids는 필수 항목입니다' });
@@ -95,8 +96,8 @@ export const addProductsToFoldersController = async (req, res) => {
 // 폴더 이름 변경
 export const updateFolderName = async (req, res) => {
     try {
-        const { user_id } = req.params;
         const { folder_id, new_folder_name } = req.body;
+        const user_id = req.user_id; // Extract user_id from request object
 
         if (!user_id || !folder_id || !new_folder_name) {
             return res.status(400).json({ message: 'user_id, folder_id, and new_folder_name are required' });
@@ -120,12 +121,11 @@ export const updateFolderName = async (req, res) => {
     }
 };
 
-
 // 다중 폴더 삭제
 export const deleteFolders = async (req, res) => {
     try {
-        const { user_id } = req.params;
         const { folder_ids } = req.body;
+        const user_id = req.user_id; // Extract user_id from request object
 
         if (!user_id || !folder_ids) {
             return res.status(400).json({ message: 'user_id and folder_ids are required' });
@@ -145,8 +145,9 @@ export const deleteFolders = async (req, res) => {
 // 폴더 내 상품 정보 조회
 export const getProductsInFolder = async (req, res) => {
     try {
-        const { folder_id, user_id } = req.params; // 요청 파라미터에서 folder_id와 user_id를 받아옴
+        const { folder_id } = req.params; // 요청 파라미터에서 folder_id를 받아옴
         const { cursor = 0, limit = 10 } = req.query; // 쿼리 파라미터로 cursor와 limit을 받음
+        const user_id = req.user_id; // Extract user_id from request object
 
         if (!folder_id || !user_id) {
             return res.status(400).json({ message: 'folder_id and user_id are required' });
@@ -169,14 +170,18 @@ export const deleteProductsFromFolderController = async (req, res) => {
     try {
         const { folder_id } = req.params;
         const { product_ids } = req.body;
+        const user_id = req.user_id; // Extract user_id from request object
 
-        if (!folder_id || !product_ids) {
-            return res.status(400).json({ message: 'folder_id and product_ids are required' });
+        if (!user_id || !folder_id || !product_ids) {
+            return res.status(400).json({ message: 'user_id, folder_id, and product_ids are required' });
         }
 
-        const result = await deleteProductsFromFolder(folder_id, product_ids);
+        const result = await deleteProductsFromFolder(folder_id, product_ids, user_id);
 
-        res.status(200).json(result);
+        res.status(200).json({
+            message: 'Products deleted from folder successfully',
+            data: result
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting products from folder', error: error.message });
     }

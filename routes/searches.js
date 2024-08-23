@@ -24,8 +24,9 @@ const router = express.Router();
 
 // 기념품 키워드 검색 기능
 router.get('/', decodeAccessToken, async (req, res) => {
-  const { query, category, sort,  limit = 10, cursor } = req.query; 
+  const { query, category, sort,  limit=10 , cursor=0 } = req.query; 
   const { user_id }=req; // 검색 기능에서도 검증해야함
+  
   
   let whereClause = '';
   let params = [];
@@ -43,15 +44,7 @@ router.get('/', decodeAccessToken, async (req, res) => {
     }
     params.push(category);
   }
-  // 커서 기반 페이지네이션
-  if ( cursor ) {
-    if (whereClause) {
-      whereClause += 'AND product.id > ?';
-    } else {
-      whereClause += 'WHERE product.id > ?';
-    }
-    params.push(cursor);
-  } 
+
 
   let orderClause = '';
   if (sort) {
@@ -78,20 +71,24 @@ router.get('/', decodeAccessToken, async (req, res) => {
   try {
 
     const total = await countSearches(whereClause, params);
+
     const products = await searchProducts(
       whereClause,
       orderClause,
       params,
       user_id,
+      cursor,
       limit,
     );
-    const nextCursor= products.length > 0? products[products.length-1].id :null;
+    const nextCursor = products.length > 0 && products.length === parseInt(limit) 
+    ? products[products.length - 1].row_num 
+    : null;
  
 
     const result = {
       total: total, //총 검색 결과의 개수 
       products: products,
-      nextCursor, // 다음 페이지의 커서 
+      nextCursor: nextCursor !==0 ? nextCursor: null, // 다음 페이지의 커서 , 있을 때는 반환하고 없다면 null.
     };
 
     res.send(response(successStatus.PRODUCTS_SEARCH_SUCCESS, result));

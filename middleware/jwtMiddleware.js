@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { errResponse, response } from '../config/response.js';
 import { errStatus } from '../config/errorStatus.js';
 import { successStatus } from '../config/successStatus.js';
-import redisClient from '../config/redis-config.js';
+import { redisClient } from '../config/redis-config.js';
 dotenv.config();
 
 const generateToken = (user) => {
@@ -17,6 +17,7 @@ const generateToken = (user) => {
       // expiresIn: '1h',
     }
   );
+
   return accessToken;
 };
 
@@ -24,14 +25,15 @@ const generateRefreshToken = (user) => {
   let userId = String(user.user_id);
 
   const refreshToken = jwt.sign(
-    { id: userId }, // jwt.sign의 첫 번째 인자로 payload 전달
+    { id: userId },
     process.env.JWT_REFRESH_SECRET_KEY,
     {
       expiresIn: '14d',
     }
   );
-  // redis에 14일 만료기한으로 저장
+
   redisClient.SETEX(userId, 1209600, refreshToken);
+
   return refreshToken;
 };
 
@@ -78,6 +80,7 @@ const decodeAccessToken = (req, res, next) => {
       req.user_id = decodedToken.id; // 유저 정보를 req 객체에 저장
       next(); // 다음 middleware로 넘어감
     } catch (err) {
+      console.log(err);
       return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
     }
   } else {
@@ -101,7 +104,6 @@ const verifyAccessToken = (req, res) => {
     };
     return res.send(response(successStatus.ACCESS_TOKEN_IS_VERITY, data));
   } catch (err) {
-    console.log(err);
     return res.send(errResponse(errStatus.TOKEN_VERIFICATION_FAILURE));
   }
 };
@@ -122,7 +124,6 @@ const verifyRefreshToken = (req, res) => {
     };
     return res.send(response(successStatus.REFRESH_TOKEN_IS_VERITY, data));
   } catch (err) {
-    console.log(err);
     return res.send(errResponse(errStatus.INVALID_REFRESH_TOKEN));
   }
 };
@@ -136,3 +137,4 @@ export {
   verifyAccessToken,
   verifyRefreshToken,
 };
+
