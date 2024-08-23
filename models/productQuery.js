@@ -82,7 +82,7 @@ GROUP BY
     p.id
 ORDER BY 
     wish_count DESC
-LIMIT 10;
+LIMIT 3;
 
 
 `
@@ -171,5 +171,5 @@ ProductsWithRating AS (
 SELECT *
 FROM ProductsWithRating
 ORDER BY average_rating DESC
-LIMIT ?;
+LIMIT 20;
 `

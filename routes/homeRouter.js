@@ -13,14 +13,13 @@ const homeRouter = express.Router();
 // 카테고리 추천
 homeRouter.get('/',decodeAccessToken,async (req, res) => {
     //main_cateogryID와 cateogry를 통해 가져올 count
-    const { count,cursor } = req.query;
-    console.log(count)
+    //const { count,cursor } = req.query;
             //유저 정보 가져오는 로직 추가해애함.
             const { user_id } = req;
 
 
     try {
-        const homeMainResponse = await getHome(count,user_id,cursor);
+        const homeMainResponse = await getHome(user_id);
         res.send(response(successStatus.HOME_SUCCESS, homeMainResponse));
     } catch (err) {
         console.error("Error fetching products:", err);
@@ -29,15 +28,15 @@ homeRouter.get('/',decodeAccessToken,async (req, res) => {
 });
 homeRouter.get('/category',decodeAccessToken,async (req, res) => {
     // main_categoryID와 category를 통해 가져올 count 및 cursor
-    const { category, count, cursor } = req.query;
-    console.log(category, count, cursor);
+    const { category, cursor } = req.query;
+    console.log(category, cursor);
     
     // 유저 정보 가져오는 로직 추가 (예시로 user_id를 53으로 설정)
     const {user_id} = req;
 
     try {
         // getProductByCategoryID에 cursor 값을 추가로 전달
-        const { user, groupedProducts, cursor: newCursor } = await getProductByCategoryID(category, count, user_id, cursor);
+        const { user, groupedProducts, cursor: newCursor } = await getProductByCategoryID(category, user_id, cursor);
         
         // 응답에 새로운 cursor 포함
         res.send(response(successStatus.HOME_SUCCESS, { user, groupedProducts, cursor: newCursor }));
