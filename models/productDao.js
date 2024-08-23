@@ -150,10 +150,11 @@ export const getRecommendForUser = async (userId, count=10) => {
         console.log(userId,count)
         const rows = await pool.query(getRecommendUserQuery, [parseInt(userId, 10), parseInt(userId, 10)]);
         // 현재 카테고리의 상품 목록을 담을 배열 초기화
-        const products = rows[1];
+        const products = rows[0];
         const groupedProducts = {};
         // "userRecommend" 배열을 먼저 초기화
         groupedProducts["userRecommend"] = [];
+        console.log("products:", products)
         products.forEach(product => {
             groupedProducts["userRecommend"].push({
                 id: product.product_id,
