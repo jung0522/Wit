@@ -239,14 +239,13 @@ export const getUserFoldersFromDb = async (userId, cursor = 1, limit = 10) => {
             return { count: total_count, folders: [], nextCursor: null };
         }
 
-        // 3단계: 각 폴더에 대한 제품 이미지와 제품 수 조회
         const foldersWithProducts = await Promise.all(folders.map(async folder => {
             const [productRows] = await pool.query(
                 `SELECT p.image
                  FROM product p
                  JOIN cart_folder_product cfp ON p.id = cfp.product_id
                  WHERE cfp.folder_id = ?
-                 ORDER BY p.id DESC
+                 ORDER BY cfp.created_at DESC -- created_at 기준으로 내림차순 정렬
                  LIMIT 3`, // 최신 3개의 이미지 선택
                 [folder.folder_id]
             );
