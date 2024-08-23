@@ -146,13 +146,13 @@ export const getProductsInCart = async (userId, cursor = 1, limit = 10) => {
                         FROM user_heart uh 
                         WHERE uh.user_id = ? AND uh.product_id = p.id
                     ) AS heart,
-                    ROW_NUMBER() OVER (ORDER BY p.created_at DESC, p.id DESC) AS row_num
+                    ROW_NUMBER() OVER (ORDER BY cfp.created_at DESC) AS row_num -- cart_folder_product.created_at 기준으로 내림차순 정렬
                 FROM product p
                 JOIN cart_folder_product cfp ON p.id = cfp.product_id
                 JOIN folder f ON cfp.folder_id = f.id
                 LEFT JOIN review r ON p.id = r.product_id
                 WHERE f.cart_id = ?
-                GROUP BY p.id
+                GROUP BY p.id, cfp.created_at
             )
             SELECT
                 product_id,
@@ -167,7 +167,6 @@ export const getProductsInCart = async (userId, cursor = 1, limit = 10) => {
             FROM RankedProducts
             WHERE row_num >= ? AND row_num < ? + ?
             ORDER BY row_num`;
-
         const params = [userId, cartId, intCursor, intCursor, intLimit];
 
         const [products] = await pool.query(query, params);
@@ -218,20 +217,20 @@ export const getUserFoldersFromDb = async (userId, cursor = 1, limit = 10) => {
 
         // 2단계: 폴더를 커서 기반 페이지네이션으로 조회
         const query = `
-            WITH RankedFolders AS (
-                SELECT
-                    f.id AS folder_id,
-                    f.name AS folder_name,
-                    ROW_NUMBER() OVER (ORDER BY f.created_at DESC, f.id DESC) AS row_num
-                FROM folder f
-                WHERE f.user_id = ?
-            )
+        WITH RankedFolders AS (
             SELECT
-                folder_id,
-                folder_name
-            FROM RankedFolders
-            WHERE row_num >= ? AND row_num < ? + ?
-            ORDER BY row_num`;
+                f.id AS folder_id,
+                f.name AS folder_name,
+                ROW_NUMBER() OVER (ORDER BY f.created_at DESC) AS row_num -- created_at 기준으로 내림차순 정렬
+            FROM folder f
+            WHERE f.user_id = ?
+        )
+        SELECT
+            folder_id,
+            folder_name
+        FROM RankedFolders
+        WHERE row_num >= ? AND row_num < ? + ?
+        ORDER BY row_num`;
 
         const [folders] = await pool.query(query, [userId, intCursor, intCursor, intLimit]);
 
@@ -384,12 +383,12 @@ export const getProductsInFolderFromDb = async (folderId, userId, cursor = 1, li
                         WHERE uh.user_id = ?
                         AND uh.product_id = p.id
                     ) AS heart,
-                    ROW_NUMBER() OVER (ORDER BY p.created_at DESC, p.id DESC) AS row_num
+                    ROW_NUMBER() OVER (ORDER BY cfp.created_at DESC) AS row_num -- created_at 기준으로 내림차순 정렬
                 FROM product p
                 JOIN cart_folder_product cfp ON p.id = cfp.product_id
                 LEFT JOIN review r ON p.id = r.product_id
                 WHERE cfp.folder_id = ?
-                GROUP BY p.id
+                GROUP BY p.id, cfp.created_at
             )
             SELECT
                 product_id,
@@ -424,7 +423,7 @@ export const getProductsInFolderFromDb = async (folderId, userId, cursor = 1, li
             };
         });
 
-        // 전체 제품 수
+        // 전체 제품 수 
         const total_count = products.length > 0 ? products[0].total_count : 0;
 
         // nextCursor 계산: cursor + limit
