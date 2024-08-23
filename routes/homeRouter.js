@@ -11,16 +11,16 @@ const homeRouter = express.Router();
 
 
 // 카테고리 추천
-homeRouter.get('/', decodeAccessToken,async (req, res) => {
+homeRouter.get('/',async (req, res) => {
     //main_cateogryID와 cateogry를 통해 가져올 count
-    const { count } = req.query;
+    const { count,cursor } = req.query;
     console.log(count)
             //유저 정보 가져오는 로직 추가해애함.
             const { user_id } = req;
 
 
     try {
-        const homeMainResponse = await getHome(count,user_id);
+        const homeMainResponse = await getHome(count,user_id,cursor);
         res.send(response(successStatus.HOME_SUCCESS, homeMainResponse));
     } catch (err) {
         console.error("Error fetching products:", err);

@@ -65,7 +65,7 @@ const getOneUser = async (id) => {
     if (!id) {
       throw new Error(errStatus.USER_ID_IS_WRONG.message);
     }
-    const [row] = await pool.query(findOneUserQuery, [id]);
+    const [row] = await pool.query(findOneUserQuery);
 
     if (row.length === 0) {
       return null;

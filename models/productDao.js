@@ -2,11 +2,11 @@ import { pool } from '../config/db-config.js';
 import { errStatus } from '../config/errorStatus.js';
 import { BaseError } from '../config/error.js';
 import { getAllNoticesQuery } from './noticeQuery.js';
-import {getPopularProductsByCategoryQuery,getPopularProductsByALLCategoryQuery,getNyamRecommendQuery} from './productQuery.js';
+import {getPopularProductsByCategoryQuery,getPopularProductsByALLCategoryQuery,getNyamRecommendQuery,getRecommendUserQuery} from './productQuery.js';
 
 
 // 카테고리별 인기 있는 상품을 한 번에 가져오기
-export const getALLProductByALLCategory = async (count) => {
+export const getALLProductByALLCategory = async (count,userId, cursor = null) => {
   const connection = await pool.getConnection(); // 데이터베이스 연결
   try {
       const categories = ['ALL', '식품', '뷰티코스메틱', '의약품', '생활용품'];
@@ -21,7 +21,7 @@ export const getALLProductByALLCategory = async (count) => {
           } else { // 특정 카테고리 인기 상품
               // 특정 카테고리 ID를 매핑 (예: 식품 = 1, 뷰티코스메틱 = 2 등)
               const categoryId = getCategoryIdByName(category);
-              [rows] = await pool.query(getPopularProductsByCategoryQuery, [categoryId, parseInt(count, 10)]);
+              [rows] = await pool.query(getPopularProductsByCategoryQuery, [userId,categoryId,cursor, parseInt(count, 10)]);
           }
 
           // 현재 카테고리의 상품 목록을 담을 배열 초기화
@@ -147,3 +147,19 @@ export const getNyamRecommendByUser = async (count) => {
       if (connection) connection.release(); // 연결 해제
   }
 };
+
+
+// 유저 추천 상품 가져오기
+export const getRecommendForUser = async (userId, count) => {
+    const connection = await pool.getConnection(); // 데이터베이스 연결
+    try {
+        const [rows] = await pool.query(getRecommendUserQuery, [parseInt(userId, 10), parseInt(count, 10)]);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching recommended products by user:", error);
+        throw new Error('Internal Server Error');
+    } finally {
+        if (connection) connection.release(); // 연결 해제
+    }
+  };
+  

@@ -22,7 +22,7 @@ JOIN
 LEFT JOIN
     mine wish ON p.id = wish.product_id
 LEFT JOIN
-    user_heart ON p.id = user_heart.product_id AND user_heart.user_id = 37
+    user_heart ON p.id = user_heart.product_id AND user_heart.user_id = ?
 LEFT JOIN
     review r ON p.id = r.product_id
 WHERE
@@ -59,7 +59,7 @@ GROUP BY
     p.id, mc.main_category_name
 ORDER BY 
     wish_count DESC
-LIMIT ?;
+LIMIT 10;
 
 `
 
@@ -82,7 +82,7 @@ GROUP BY
     p.id
 ORDER BY 
     wish_count DESC
-LIMIT ?;
+LIMIT 10;
 
 
 `
@@ -108,7 +108,7 @@ JOIN
 LEFT JOIN
     mine wish ON p.id = wish.product_id
 LEFT JOIN
-    user_heart ON p.id = user_heart.product_id AND user_heart.user_id = 37
+    user_heart ON p.id = user_heart.product_id AND user_heart.user_id = ?
 LEFT JOIN
     review r ON p.id = r.product_id
 WHERE
@@ -118,4 +118,58 @@ GROUP BY
 ORDER BY
     wish_count DESC
 LIMIT 20;
+`
+
+
+export const getRecommendUserQuery=`
+WITH DistinctSouvenir AS (
+    SELECT DISTINCT s.souvenir_name
+    FROM souvenir s
+    WHERE s.user_id = ?
+),
+MainCategoryMapping AS (
+
+    SELECT ds.souvenir_name, mc.main_category_id
+    FROM DistinctSouvenir ds
+    JOIN main_category mc ON ds.souvenir_name = mc.main_category_name
+),
+SubCategoryMapping AS (
+
+    SELECT mcm.main_category_id, sc.sub_category_id, sc.sub_category_name
+    FROM MainCategoryMapping mcm
+    JOIN sub_category sc ON mcm.main_category_id = sc.main_category_id
+),
+ProductsWithRating AS (
+
+    SELECT
+        p.id AS product_id,
+        p.name AS product_name,
+        p.won_price,
+        p.en_price,
+        p.image,
+        scm.sub_category_name,
+        COALESCE(AVG(r.rating), 0) AS average_rating,
+        COUNT(r.id) AS review_count  
+    FROM
+        product p
+    LEFT JOIN
+        review r ON p.id = r.product_id
+    JOIN
+        sub_category sc ON p.sub_category_id = sc.sub_category_id
+    JOIN
+        SubCategoryMapping scm ON sc.sub_category_id = scm.sub_category_id
+    GROUP BY
+        p.id,
+        p.name,
+        p.won_price,
+        p.en_price,
+        p.image,
+        scm.sub_category_name
+)
+
+
+SELECT *
+FROM ProductsWithRating
+ORDER BY average_rating DESC
+LIMIT ?;
 `

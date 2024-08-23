@@ -3,10 +3,10 @@ import express from "express";
 
 
 import { getAllNotices } from "../models/noticeDao.js";
-import { getPopularProductsByCategory,getALLProductByALLCategory,getNyamRecommendByUser } from '../models/productDao.js';
+import { getPopularProductsByCategory,getALLProductByALLCategory,getNyamRecommendByUser,getRecommendForUser } from '../models/productDao.js';
 import {getOneUser} from '../models/userDao.js';
 
-export const getHome = async (count,userId) => {
+export const getHome = async (count,userId,cursor) => {
     try {
        console.log("asdasdasd")
        console.log(count)
@@ -22,10 +22,10 @@ export const getHome = async (count,userId) => {
        const userInfo = await getOneUser(userId);
        
        // 유저에 대한 추천 상품 가져오기
-       const RecommendForUserResponse = await getCustomProductsByUserId(userId);
+       const ProductsResponse = await getRecommendForUser(userId,count);
 
        // 카테고리별 인기 상품 가져오기
-       const PopularProductsResponse = await getALLProductByALLCategory(count);
+       const PopularProductsResponse = await getALLProductByALLCategory(count,userId, cursor);
 
        // 식품 추천 상품 가져오기
        const nyamProductsResponse = await getNyamRecommendByUser(count);
@@ -39,7 +39,7 @@ export const getHome = async (count,userId) => {
                 // nyamRecommendations: NyamRecommendProductsResponse,
                 // notices: noticeResponse
             user : userInfo,
-            recommendations: nyamProductsResponse,
+            recommendations: ProductsResponse,
             popularProducts: PopularProductsResponse,
             nyamRecommendations: nyamProductsResponse,
             notices: noticeResponse
@@ -118,16 +118,16 @@ export const getRecommend = async(count,userId)=>{
         console.log(userId)
        // 카테고리별 인기 상품 가져오기
        const userInfo = await getOneUser(userId);
-       // 냠냠  인기 상품 가져오기
-       const nyamProductsResponse = await getNyamRecommendByUser(count);
+       // 유저 추천  인기 상품 가져오기
+       const ProductsResponse = await getRecommendForUser(userId,count);
         
         // 메인 홈 응답 구성
         return { 
             user : userInfo,
-            recommendations: nyamProductsResponse,            
+            recommendations: ProductsResponse,            
         };
 
     }catch{
 
     }
-}
+} 
