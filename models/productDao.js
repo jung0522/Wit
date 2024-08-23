@@ -65,13 +65,13 @@ function getCategoryIdByName(categoryName) {
 }
 
 
-export const getPopularProductsByCategory = async (userId, category, count, cursor = null) => {
+export const getPopularProductsByCategory = async (userId, category, count=20, cursor = null) => {
     const connection = await pool.getConnection(); // 데이터베이스 연결
     try {
         let rows;
         
         if (parseInt(category) === 0) { // 전체 카테고리 인기 상품
-                rows = await connection.query(getPopularProductsByALLCategoryQuery);
+                rows = await connection.query(getPopularProductsByALLCategoryQuery,[parseInt(count,10)]);
         } else { // 특정 카테고리 인기 상품
             if (cursor) {
                 rows = await connection.query(getPopularProductsByCategoryQuery, [userId,parseInt(category, 10), cursor, parseInt(count, 10)]);
@@ -124,7 +124,7 @@ export const getPopularProductsByCategory = async (userId, category, count, curs
   
 
 // 냠냠 인기 있는 상품 가져오기
-export const getNyamRecommendByUser = async (count) => {
+export const getNyamRecommendByUser = async (count=10) => {
   const connection = await pool.getConnection(); // 데이터베이스 연결
   try {
       let rows;
@@ -144,7 +144,7 @@ export const getNyamRecommendByUser = async (count) => {
 
 
 // 유저 추천 상품 가져오기
-export const getRecommendForUser = async (userId, count=20) => {
+export const getRecommendForUser = async (userId, count=10) => {
     const connection = await pool.getConnection(); // 데이터베이스 연결
     try {
         console.log(userId,count)
