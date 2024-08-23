@@ -151,9 +151,9 @@ export const getRecommendForUser = async (userId, count=10) => {
         const rows = await pool.query(getRecommendUserQuery, [parseInt(userId, 10), parseInt(userId, 10)]);
         // 현재 카테고리의 상품 목록을 담을 배열 초기화
         const products = rows[0];
-        const groupedProducts = {};
+        //const groupedProducts = {};
         // "userRecommend" 배열을 먼저 초기화
-        groupedProducts = [];
+        let groupedProducts = [];
         console.log("products:", products)
         products.forEach(product => {
             groupedProducts.push({
@@ -163,7 +163,7 @@ export const getRecommendForUser = async (userId, count=10) => {
                 en_price: product.en_price,
                 image: product.image,
                 sub_category_name: product.sub_category_name,
-                review_count : product.review_count == 0? 0 : product.review_coun,
+                review_count : product.review_count == 0? 0 : product.review_count,
                 review_avg : product.average_rating == 0? 0 : product.average_rating,
                 is_heart: product.is_heart == 1 ? true : false
             });
