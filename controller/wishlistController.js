@@ -132,10 +132,8 @@ export const deleteFolders = async (req, res) => {
         }
 
         const result = await deleteFoldersFromDb(user_id, folder_ids);
-
         res.status(200).json({
-            message: 'Folders deleted successfully',
-            data: result
+            message: result.message
         });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting folders', error: error.message });
