@@ -346,15 +346,14 @@ router.get('/:productId/rating-stats', decodeAccessToken, async (req, res, next)
 
   try {
     const ratingStatsQuery = `
-      SELECT rating, COUNT(*) as count
+      SELECT FLOOR(rating) as rounded_rating, COUNT(*) as count
       FROM review
-      WHERE id = ?
-      GROUP BY rating
+      WHERE product_id = ?
+      GROUP BY rounded_rating
     `;
     const [ratingStats] = await pool.query(ratingStatsQuery, [productId]);
-
     const stats = ratingStats.reduce((acc, row) => {
-      acc[row.rating] = row.count;
+      acc[row.rounded_rating] = row.count;
       return acc;
     }, {});
 
