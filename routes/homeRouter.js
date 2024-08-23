@@ -11,7 +11,7 @@ const homeRouter = express.Router();
 
 
 // 카테고리 추천
-homeRouter.get('/',async (req, res) => {
+homeRouter.get('/',decodeAccessToken,async (req, res) => {
     //main_cateogryID와 cateogry를 통해 가져올 count
     const { count,cursor } = req.query;
     console.log(count)
