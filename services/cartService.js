@@ -76,8 +76,12 @@ export const addProductToCart = async (userId, productId) => {
 };
 
 // 장바구니에서 제품을 제거하는 함수
-export const removeProductFromCart = async (userId, productId) => {
+export const removeProductFromCart = async (userId, productIds) => {
     try {
+        if (!Array.isArray(productIds) || productIds.length === 0) {
+            throw new Error('productIds는 비어있지 않은 배열이어야 합니다.');
+        }
+
         // 1. 해당 사용자의 장바구니를 가져오기
         let [cart] = await pool.query('SELECT * FROM cart WHERE user_id = ?', [userId]);
 
@@ -103,32 +107,36 @@ export const removeProductFromCart = async (userId, productId) => {
         const folderId = folder[0].id;
 
         // 3. 해당 폴더에 제품이 있는지 확인
-        let [cartProduct] = await pool.query('SELECT * FROM cart_folder_product WHERE folder_id = ? AND product_id = ?', [folderId, productId]);
+        const placeholders = productIds.map(() => '?').join(',');
+        const queryCheck = 
+            `SELECT product_id
+            FROM cart_folder_product
+            WHERE folder_id = ? AND product_id IN (${placeholders})`;
+        
+        const [existingProducts] = await pool.query(queryCheck, [folderId, ...productIds]);
+        const existingProductIds = existingProducts.map(product => product.product_id);
 
-        if (cartProduct.length === 0) {
+        // 존재하지 않는 제품 확인
+        const missingProductIds = productIds.filter(id => !existingProductIds.includes(id));
+
+        // 존재하지 않는 제품이 있을 경우 메시지 반환
+        if (missingProductIds.length > 0) {
             return {
-                message: '폴더에서 제품을 찾을 수 없습니다.',
-                data: null
+                message: '없는 제품이 있습니다.',
+                missing_product_ids: missingProductIds
             };
         }
 
-        // 4. 제품의 수량이 1보다 큰 경우, 수량을 1 감소시키고, 수량이 0이 되면 제품을 장바구니에서 제거
-        const currentQuantity = cartProduct[0].quantity;
-
-        if (currentQuantity > 1) {
-            // 수량을 1 감소시킴
-            await pool.query('UPDATE cart_folder_product SET quantity = quantity - 1 WHERE folder_id = ? AND product_id = ?', [folderId, productId]);
-        } else {
-            // 수량이 0이 되면 제품을 장바구니에서 제거
-            await pool.query('DELETE FROM cart_folder_product WHERE folder_id = ? AND product_id = ?', [folderId, productId]);
-        }
-
-        // 5. 폴더의 count 값을 업데이트
-        await pool.query('UPDATE folder SET count = count - 1 WHERE id = ?', [folderId]);
-
+        // 존재하는 제품 삭제
+        const queryDelete = 
+            `DELETE FROM cart_folder_product
+            WHERE folder_id = ? AND product_id IN (${placeholders})`;
+        
+        await pool.query(queryDelete, [folderId, ...productIds]);
+        
         return {
-            message: '제품이 장바구니에서 성공적으로 제거되었습니다.',
-            data: null
+            message: '제품이 성공적으로 삭제되었습니다.',
+            deleted_product_ids: existingProductIds
         };
     } catch (error) {
         console.error('쿼리 실행 중 오류 발생', error);

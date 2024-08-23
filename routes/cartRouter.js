@@ -6,5 +6,5 @@ const router = Router();
 
 
 router.post('/add-cart/:productId', decodeAccessToken, addToCart);
-router.post('/delete-cart/:productId',decodeAccessToken,  removeToCart);
+router.post('/delete-cart',decodeAccessToken,  removeToCart);
 export default router;
