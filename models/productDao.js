@@ -167,7 +167,7 @@ export const getRecommendForUser = async (userId, count=10) => {
                 is_heart: product.is_heart == 1 ? true : false
             });
         });
-        return rows;
+        return groupedProducts;
     } catch (error) {
         console.error("Error fetching recommended products by user:", error);
         throw new Error('Internal Server Error');
