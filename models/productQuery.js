@@ -82,7 +82,7 @@ GROUP BY
     p.id
 ORDER BY 
     wish_count DESC
-LIMIT 10;
+LIMIT ?;
 
 
 `
@@ -117,7 +117,7 @@ GROUP BY
     p.id, p.name, p.won_price, p.en_price, p.image, mc.main_category_name, user_heart.product_id
 ORDER BY
     wish_count DESC
-LIMIT 20;
+LIMIT 10;
 `
 
 
@@ -171,5 +171,5 @@ ProductsWithRating AS (
 SELECT *
 FROM ProductsWithRating
 ORDER BY average_rating DESC
-LIMIT ?;
+LIMIT 10;
 `
