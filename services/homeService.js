@@ -21,13 +21,13 @@ export const getHome = async (userId) => {
        const userInfo = await getOneUser(userId);
        
        // 유저에 대한 추천 상품 가져오기
-       const ProductsResponse = await getRecommendForUser(userId,count=20);
+       const ProductsResponse = await getRecommendForUser(userId,count=10);
 
        // 카테고리별 인기 상품 가져오기
        const PopularProductsResponse = await getALLProductByALLCategory(count=3,userId, cursor);
 
        // 식품 추천 상품 가져오기
-       const nyamProductsResponse = await getNyamRecommendByUser(count=20);
+       const nyamProductsResponse = await getNyamRecommendByUser(count=10);
 
        // 공지사항 가져오기
        const noticeResponse = await getAllNotices();
