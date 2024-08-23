@@ -348,9 +348,10 @@ export const deleteFoldersFromDb = async (userId, folderIds) => {
             [folderIds, userId]
         );
 
-        // 삭제된 폴더 ID를 포함한 결과 반환
+        // 폴더 삭제
         return {
-            message: '없는 폴더가 있습니다.',
+            message: '폴더가 삭제 되었습니다!',
+            folderIds
         };
     } catch (error) {
         console.error('폴더 삭제 중 오류 발생', error);
