@@ -263,10 +263,10 @@ router.get('/:productId/reviews', decodeAccessToken, async (req, res, next) => {
 
 
 // 리뷰 작성하기 -> 이미지 업로드 통합
-router.post('/:productId/reviews', decodeAccessToken, imageUploader.single('image'), async (req, res, next) => {
+router.post('/:productId/reviews', decodeAccessToken, imageUploader.array('image', 5), async (req, res, next) => {
   const { productId } = req.params;
   const { rating, content } = req.body;
-  const file = req.file; // 업로드된 이미지 파일
+  const files = req.files; // 업로드된 이미지 파일
   const { user_id } = req; // 디코딩된 토큰에서 user_id 사용
 
   try {
@@ -275,7 +275,8 @@ router.post('/:productId/reviews', decodeAccessToken, imageUploader.single('imag
     }
 
     // 이미지 업로드가 있는 경우, S3에서 이미지 URL 가져오기
-    const imageUrl = file ? file.location : null;
+    // 이미지 URL 배열 생성
+    const imageUrls = files.map(file => file.location);
 
     const insertReviewQuery = `
       INSERT INTO review (product_id, user_id, rating, content, image, created_at)
@@ -287,7 +288,7 @@ router.post('/:productId/reviews', decodeAccessToken, imageUploader.single('imag
       user_id,
       rating,
       content,
-      imageUrl,  // 이미지 URL 저장
+      imageUrls.join(','),  // 이미지 URL 저장
     ]);
 
     const newReviewId = result.insertId;
